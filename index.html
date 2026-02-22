@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineRate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── Reset & tokens ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d0d0d;
+            --surface: #161616;
+            --line: #1f1f1f;
+            --line2: #2a2a2a;
+            --text: #ececec;
+            --sub: #6e6e6e;
+            --acc: #d4a849;
+            --acc-dim: rgba(212, 168, 73, .12);
+            --r: 10px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--line2);
+            border-radius: 2px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ── Header ── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 0 32px;
+            height: 56px;
+            background: rgba(13, 13, 13, .92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .logo {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: -.01em;
+            color: var(--text);
+            flex-shrink: 0;
+        }
+
+        .logo span {
+            color: var(--acc);
+        }
+
+        .type-switch {
+            display: flex;
+            gap: 2px;
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 3px;
+        }
+
+        .tt {
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            color: var(--sub);
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            transition: all .15s;
+        }
+
+        .tt.on {
+            background: var(--line2);
+            color: var(--text);
+        }
+
+        .name-field {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .name-field input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            width: 100px;
+            text-align: right;
+        }
+
+        .name-field input::placeholder {
+            color: var(--sub);
+        }
+
+        .av {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--acc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        /* ── Main layout ── */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* ── Stats row ── */
+        .stats {
+            display: flex;
+            gap: 1px;
+            background: var(--line);
+            border: 1px solid var(--line);
+            border-radius: var(--r);
+            overflow: hidden;
+            margin-bottom: 36px;
+        }
+
+        .stat {
+            flex: 1;
+            padding: 16px 20px;
+            background: var(--surface);
+        }
+
+        .stat-v {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -.02em;
+        }
+
+        .stat-l {
+            font-size: 11px;
+            color: var(--sub);
+            margin-top: 1px;
+            letter-spacing: .02em;
+            text-transform: uppercase;
+        }
+
+        /* ── Toolbar ── */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-wrap {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--sub);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            background: var(--surface);
+            border: 1px solid var(--line2);
+            border-radius: var(--r);
+            color: var(--text);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .search-wrap input:focus {
+            border-color: var(--line2);
+            background: var(--surface);
+        }
+
+        .search-wrap input::placeholder {
+            color: var(--sub);
+        }
+
+        .btn {
+            padding: 9px 16px;
+            border-radius: var(--r);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all .15s;
+            border: 1px solid var(--line2);
+            background: var(--surface);
+            color: var(--text);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            border-color: var(--line2);
+            background: var(--line2);
+        }
+
+        .btn-primary {
+            background: var(--acc);
+            color: #000;
+            border-color: transparent;
+        }
+
+        .btn-primary:hover {
+            background: #c49a38;
+        }
+
+        /* ── Genre chips ── */
+        .chips-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .chip {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--line2);
+            background: transparent;
+            color: var(--sub);
+            font-family: 'Inter', sans-serif;
+            transition: all .15s;
+        }
+
+        .chip.on {
+            background: var(--acc-dim);
+            border-color: rgba(212, 168, 73, .35);
+            color: var(--acc);
+        }
+
+        .chip:hover:not(.on) {
+            color: var(--text);
+            border-color: var(--line2);
+            background: var(--surface);
+        }
+
+        .sort-sel {
+            margin-left: auto;
+            background: var(--surface);
+            border: 1px solid var(--line2);
+            border-radius: var(--r);
+            padding: 6px 10px;
+            color: var(--sub);
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* ── Film grid ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            border-radius: var(--r);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform .2s;
+            background: var(--surface);
+            border: 1px solid var(--line);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: var(--line2);
+        }
+
+        .poster-wrap {
+            aspect-ratio: 2/3;
+            overflow: hidden;
+            background: var(--line);
+            position: relative;
+        }
+
+        .poster-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform .3s;
+        }
+
+        .card:hover .poster-wrap img {
+            transform: scale(1.03);
+        }
+
+        .poster-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--line2);
+            font-size: 36px;
+        }
+
+        .card-body {
+            padding: 12px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: -.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .card-sub {
+            font-size: 11px;
+            color: var(--sub);
+            margin-bottom: 8px;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .score {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--acc);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .score-star {
+            font-size: 11px;
+        }
+
+        .rater-row {
+            display: flex;
+            gap: -3px;
+        }
+
+        .rater-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1.5px solid var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+            color: #fff;
+            margin-right: -4px;
+        }
+
+        /* ── Detail overlay ── */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .detail-panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Detail top */
+        .d-top {
+            display: flex;
+            gap: 20px;
+            padding: 24px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .d-poster {
+            width: 90px;
+            height: 135px;
+            border-radius: 7px;
+            object-fit: cover;
+            background: var(--line);
+            flex-shrink: 0;
+        }
+
+        .d-poster-ph {
+            width: 90px;
+            height: 135px;
+            border-radius: 7px;
+            background: var(--line);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--line2);
+        }
+
+        .d-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .d-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            margin-bottom: 4px;
+        }
+
+        .d-meta {
+            font-size: 12px;
+            color: var(--sub);
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .d-genres {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .g-pill {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: var(--line);
+            color: var(--sub);
+        }
+
+        .d-ov {
+            font-size: 13px;
+            color: var(--sub);
+            line-height: 1.65;
+            max-height: 60px;
+            overflow: hidden;
+            transition: max-height .3s;
+        }
+
+        .d-ov.exp {
+            max-height: 300px;
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            color: var(--acc);
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            padding: 4px 0;
+        }
+
+        .close-btn {
+            margin-left: auto;
+            background: none;
+            border: 1px solid var(--line2);
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            color: var(--sub);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            align-self: flex-start;
+            transition: all .15s;
+        }
+
+        .close-btn:hover {
+            color: var(--text);
+            background: var(--line2);
+        }
+
+        /* Detail body */
+        .d-body {
+            padding: 24px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-bottom: 12px;
+        }
+
+        /* Avg block */
+        .avg-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .avg-num {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -.04em;
+            color: var(--text);
+            line-height: 1;
+        }
+
+        .avg-stars {
+            display: flex;
+            gap: 2px;
+            margin-top: 4px;
+        }
+
+        .avg-count {
+            font-size: 11px;
+            color: var(--sub);
+            margin-top: 3px;
+        }
+
+        .bar-list {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .bar-label {
+            font-size: 11px;
+            color: var(--sub);
+            width: 10px;
+            text-align: right;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 3px;
+            background: var(--line);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--acc);
+            border-radius: 2px;
+            transition: width .4s;
+        }
+
+        .bar-count {
+            font-size: 11px;
+            color: var(--sub);
+            width: 14px;
+        }
+
+        /* Ratings list */
+        .r-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            margin-bottom: 24px;
+            border: 1px solid var(--line);
+            border-radius: var(--r);
+            overflow: hidden;
+        }
+
+        .r-entry {
+            display: flex;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .r-entry:last-child {
+            border-bottom: none;
+        }
+
+        .r-av {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .r-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .r-stars {
+            display: flex;
+            gap: 2px;
+            margin-top: 1px;
+        }
+
+        .r-star {
+            font-size: 12px;
+            color: var(--line2);
+        }
+
+        .r-star.on {
+            color: var(--acc);
+        }
+
+        .r-date {
+            font-size: 11px;
+            color: var(--sub);
+            margin-top: 2px;
+        }
+
+        .r-review {
+            font-size: 12px;
+            color: var(--sub);
+            margin-top: 5px;
+            line-height: 1.6;
+        }
+
+        /* Add review */
+        .add-box {
+            border: 1px solid var(--line);
+            border-radius: var(--r);
+            padding: 18px;
+        }
+
+        .add-box h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        /* Half-star picker */
+        .star-picker {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 14px;
+        }
+
+        .star-slot {
+            position: relative;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .star-slot .s-bg {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: var(--line2);
+            transition: color .1s;
+            user-select: none;
+        }
+
+        .star-slot .s-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: var(--acc);
+            transition: width .1s;
+            user-select: none;
+            height: 100%;
+        }
+
+        .star-slot .s-left {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .star-slot .s-right {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        /* Sync status + setup banner */
+        .sync-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--sub);
+            flex-shrink: 0;
+        }
+
+        .sync-dot.ok {
+            background: #4ade80;
+        }
+
+        .sync-dot.err {
+            background: #f87171;
+        }
+
+        .sync-dot.spin {
+            animation: pulse .9s infinite;
+            background: var(--acc);
+        }
+
+        @keyframes pulse {
+            50% {
+                opacity: .3;
+            }
+        }
+
+        .setup-banner {
+            background: var(--surface);
+            border-bottom: 1px solid var(--line);
+            padding: 10px 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .setup-banner.hidden {
+            display: none;
+        }
+
+        .setup-banner span {
+            color: var(--sub);
+        }
+
+        .setup-modal {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 460px;
+            padding: 28px;
+        }
+
+        .setup-modal h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .setup-modal p {
+            font-size: 12px;
+            color: var(--sub);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .setup-modal a {
+            color: var(--acc);
+        }
+
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-bottom: 6px;
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 9px 12px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .field input:focus,
+        .field textarea:focus {
+            border-color: var(--line2);
+        }
+
+        .field textarea {
+            resize: vertical;
+            min-height: 72px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .del-btn {
+            padding: 9px 16px;
+            border-radius: var(--r);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            border: 1px solid var(--line2);
+            color: var(--sub);
+            transition: all .15s;
+        }
+
+        .del-btn:hover {
+            color: #f87171;
+            border-color: rgba(248, 113, 113, .4);
+        }
+
+        /* No ratings */
+        .no-ratings {
+            padding: 24px;
+            text-align: center;
+            color: var(--sub);
+            font-size: 13px;
+            border: 1px solid var(--line);
+            border-radius: var(--r);
+            margin-bottom: 20px;
+        }
+
+        /* Add modal */
+        .add-modal {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 420px;
+            padding: 28px;
+        }
+
+        .add-modal h2 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -.01em;
+            margin-bottom: 4px;
+        }
+
+        .add-modal p {
+            font-size: 12px;
+            color: var(--sub);
+            margin-bottom: 20px;
+        }
+
+        /* Empty state */
+        .empty {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 14px;
+            opacity: .3;
+        }
+
+        .empty h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .empty p {
+            font-size: 13px;
+            color: var(--sub);
+        }
+
+        /* Toasts */
+        .toast-wrap {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .toast {
+            padding: 10px 14px;
+            background: var(--surface);
+            border: 1px solid var(--line2);
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+            animation: toastin .2s ease;
+            max-width: 280px;
+        }
+
+        @keyframes toastin {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Badges */
+        .badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            z-index: 2;
+        }
+
+        .b-new {
+            background: var(--acc);
+            color: #000;
+        }
+
+        .b-ep {
+            background: rgba(255, 255, 255, .12);
+            color: var(--text);
+            backdrop-filter: blur(6px);
+        }
+
+        @media (max-width: 580px) {
+            header {
+                padding: 0 16px;
+                gap: 12px;
+            }
+
+            main {
+                padding: 24px 14px;
+            }
+
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+            }
+
+            .d-top {
+                flex-direction: column;
+            }
+
+            .d-poster,
+            .d-poster-ph {
+                width: 100%;
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo">Cine<span>Rate</span></div>
+        <div class="type-switch">
+            <button class="tt on" id="tabFilme" onclick="setType('filme')">Filme</button>
+            <button class="tt" id="tabSerien" onclick="setType('serien')">Serien</button>
+        </div>
+        <div class="name-field">
+            <input id="nameInput" type="text" placeholder="Dein Name" maxlength="25" oninput="onNameChange()">
+            <div class="av" id="headerAv">?</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-left:12px">
+            <div class="sync-dot" id="syncDot"></div>
+            <span style="font-size:11px;color:var(--sub)" id="syncText">lokal</span>
+        </div>
+        <button class="btn" style="padding:5px 12px;font-size:12px" onclick="openSetupModal()">⚙ Setup</button>
+    </header>
+
+    <!-- SETUP BANNER (shown when not configured) -->
+    <div class="setup-banner" id="setupBanner">
+        <span>💡 Verbinde eine JSONbin-Datenbank, um Daten mit Freunden zu teilen —</span>
+        <button class="btn btn-primary" style="padding:5px 14px;font-size:12px" onclick="openSetupModal()">Jetzt
+            einrichten</button>
+        <button class="btn" style="padding:5px 10px;font-size:12px;margin-left:auto"
+            onclick="dismissBanner()">✕</button>
+    </div>
+
+    <!-- JSONBIN SETUP OVERLAY -->
+    <div class="overlay hidden" id="setupOv" onclick="if(event.target===this)this.classList.add('hidden')">
+        <div class="setup-modal">
+            <h2>Sync einrichten</h2>
+            <p>Speichere Daten in einer kostenlosen <a href="https://jsonbin.io"
+                    target="_blank">JSONbin.io</a>-Datenbank. Alle Freunde, die denselben Bin und Key verwenden, sehen
+                dieselben Daten.<br><br><strong>Setup (einmalig):</strong><br>1. Account bei jsonbin.io erstellen<br>2.
+                Neuen Bin anlegen, Inhalt: <code>{"filme":[],"serien":[]}</code><br>3. Master Key + Bin ID unten
+                eintragen</p>
+            <div class="field"><label>Bin ID</label><input id="cfgBin" placeholder="64abc123..."></div>
+            <div class="field"><label>Master Key</label><input id="cfgKey" type="password" placeholder="$2a$10$...">
+            </div>
+            <p style="font-size:11px;color:var(--sub);margin-top:-4px;margin-bottom:16px">Beide Werte werden nur lokal
+                in deinem Browser gespeichert.</p>
+            <div class="action-row">
+                <button class="btn btn-primary" onclick="saveSetup()">Verbinden &amp; laden</button>
+                <button class="btn"
+                    onclick="document.getElementById('setupOv').classList.add('hidden')">Abbrechen</button>
+            </div>
+            <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+                <p style="font-size:11px;color:var(--sub);margin-bottom:8px">Bereits verbunden? Daten manuell speichern
+                    / laden:</p>
+                <div class="action-row">
+                    <button class="btn" onclick="syncLoad(true)">↓ Laden</button>
+                    <button class="btn" onclick="syncSave(true)">↑ Speichern</button>
+                    <button class="btn" style="color:#f87171;border-color:rgba(248,113,113,.3)"
+                        onclick="clearSetup()">Verbindung trennen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAIL OVERLAY -->
+    <div class="overlay hidden" id="detailOv" onclick="closeDetailClick(event)">
+        <div class="detail-panel" id="detailPanel">
+            <div class="d-top">
+                <div class="d-poster-ph" id="dPh">🎬</div>
+                <img id="dPoster" class="d-poster" src="" alt="" style="display:none">
+                <div class="d-info">
+                    <div class="d-title" id="dTitle"></div>
+                    <div class="d-meta" id="dMeta"></div>
+                    <div class="d-genres" id="dGenres"></div>
+                    <div class="d-ov" id="dOv"></div>
+                    <button class="expand-btn" id="exBtn" onclick="toggleOv()">mehr ↓</button>
+                </div>
+                <button class="close-btn"
+                    onclick="document.getElementById('detailOv').classList.add('hidden')">✕</button>
+            </div>
+            <div class="d-body">
+                <div class="section-label">Bewertungen</div>
+                <div id="avgArea"></div>
+                <div id="rList"></div>
+
+                <div class="add-box">
+                    <h4>Deine Bewertung</h4>
+                    <div class="star-picker" id="starPicker"></div>
+                    <div class="field">
+                        <label>Rezension (optional)</label>
+                        <textarea id="revText" placeholder="Was dachtest du?"></textarea>
+                    </div>
+                    <div class="action-row">
+                        <button class="btn btn-primary" onclick="submitRating()">Speichern</button>
+                        <button class="del-btn" id="delBtn" style="display:none"
+                            onclick="deleteRating()">Löschen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD OVERLAY -->
+    <div class="overlay hidden" id="addOv" onclick="if(event.target===this)this.classList.add('hidden')">
+        <div class="add-modal">
+            <h2 id="addTitle">Hinzufügen</h2>
+            <p>Füge einen Titel manuell hinzu</p>
+            <div class="field"><label>Titel *</label><input id="aTitle" placeholder="Titel"></div>
+            <div style="display:flex;gap:10px">
+                <div class="field" style="flex:1"><label>Jahr</label><input id="aYear" maxlength="4" placeholder="2024">
+                </div>
+                <div class="field" style="flex:1" id="aSeasonsWrap"><label>Staffeln</label><input id="aSeasons"
+                        type="number" min="1" placeholder="3"></div>
+            </div>
+            <div class="field"><label>Genres</label><input id="aGenre" placeholder="Drama, Thriller"></div>
+            <div class="field"><label>Poster-URL</label><input id="aPoster" placeholder="https://..."></div>
+            <div class="field"><label>Beschreibung</label><textarea id="aOv" placeholder="Optional…"></textarea></div>
+            <div class="action-row">
+                <button class="btn btn-primary" onclick="addItem()">Hinzufügen</button>
+                <button class="btn"
+                    onclick="document.getElementById('addOv').classList.add('hidden')">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-wrap" id="toastWrap"></div>
+
+    <main>
+        <div class="stats" id="stats"></div>
+
+        <div class="toolbar" style="margin-top:28px">
+            <div class="search-wrap">
+                <span class="search-icon">⌕</span>
+                <input id="searchI" type="text" placeholder="Suchen…" oninput="render()">
+            </div>
+            <button class="btn btn-primary" onclick="openAdd()">+ Hinzufügen</button>
+        </div>
+
+        <div class="chips-row" id="chipsRow"></div>
+        <div id="container"></div>
+    </main>
+
+    <script>
+        /* ── Data ─────────────────────────────────────────────────────────── */
+        // Fixed genre presets — always visible as filter chips
+        const PRESET_GENRES = {
+            filme: ['Action', 'Abenteuer', 'Animation', 'Biografie', 'Drama', 'Fantasy', 'Horror', 'Historisch', 'Komödie', 'Krimi', 'Romanze', 'Sci-Fi', 'Thriller', 'Dokumentation'],
+            serien: ['Action', 'Abenteuer', 'Animation', 'Drama', 'Fantasy', 'Horror', 'Komödie', 'Krimi', 'Sci-Fi', 'Thriller', 'Mystery', 'Dokumentation'],
+        };
+
+        const data = { filme: [], serien: [] };
+        let type = 'filme', filter = 'all', current = null, stars = 0;
+        let username = localStorage.getItem('cr_name') || '';
+        // ── Shared credentials (pre-configured, no setup needed) ──
+        const DEFAULT_BIN = '699b71c443b1c97be99495b7';
+        const DEFAULT_KEY = '$2a$10$/Vm1fZ.37aQZKpo7inGgiu7pOchhsHG9zMCy0tByDuvwQ6UGCF4ma';
+        let BIN_ID = localStorage.getItem('cr_bin') || DEFAULT_BIN;
+        let BIN_KEY = localStorage.getItem('cr_key') || DEFAULT_KEY;
+        let synced = false;
+
+        /* ── Helpers ─────────────────────────────────────────────────────── */
+        function avg(x) { if (!x.ratings.length) return 0; return x.ratings.reduce((s, r) => s + r.stars, 0) / x.ratings.length; }
+        function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function fmtDate(d) { return new Date(d).toLocaleDateString('de-DE', { year: 'numeric', month: 'short', day: 'numeric' }); }
+        function uColor(name) { let h = 0; for (let c of name) h = (h * 37 + c.charCodeAt(0)) % 360; return `hsl(${h},48%,46%)`; }
+        function starsEl(n, size = 12) {
+            return [1, 2, 3, 4, 5].map(i => {
+                const fill = Math.min(Math.max(n - (i - 1), 0), 1) * 100;
+                return `<span style="position:relative;display:inline-block;font-size:${size}px;line-height:1">
+              <span style="color:var(--line2)">★</span>
+              <span style="position:absolute;left:0;top:0;overflow:hidden;width:${fill}%;color:var(--acc)">★</span>
+            </span>`;
+            }).join('');
+        }
+        function toast(msg, ok = true) {
+            const d = document.createElement('div'); d.className = 'toast';
+            d.innerHTML = `<span>${ok ? '✓' : '✗'}</span><span>${msg}</span>`;
+            document.getElementById('toastWrap').appendChild(d);
+            setTimeout(() => d.remove(), 3500);
+        }
+
+        /* ── JSONbin sync ────────────────────────────────────────────────── */
+        function setSyncUI(state) {
+            const dot = document.getElementById('syncDot');
+            const txt = document.getElementById('syncText');
+            dot.className = 'sync-dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : state === 'busy' ? ' spin' : '');
+            txt.textContent = state === 'ok' ? 'synced' : state === 'err' ? 'fehler' : state === 'busy' ? 'sync…' : 'lokal';
+        }
+        async function syncLoad(manual = false) {
+            if (!BIN_ID || !BIN_KEY) return;
+            setSyncUI('busy');
+            try {
+                const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': BIN_KEY }
+                });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const j = await r.json();
+                const d = j.record;
+                if (d && Array.isArray(d.filme)) { data.filme = d.filme; data.serien = d.serien || []; }
+                synced = true; setSyncUI('ok');
+                render(); renderStats();
+                if (manual) toast('Daten geladen ✓');
+            } catch (e) {
+                setSyncUI('err');
+                if (manual) toast('Laden fehlgeschlagen: ' + e.message, false);
+            }
+        }
+        async function syncSave(manual = false) {
+            if (!BIN_ID || !BIN_KEY) return;
+            setSyncUI('busy');
+            try {
+                const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: 'PUT',
+                    headers: { 'X-Master-Key': BIN_KEY, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filme: data.filme, serien: data.serien })
+                });
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                setSyncUI('ok');
+                if (manual) toast('Gespeichert ✓');
+            } catch (e) {
+                setSyncUI('err');
+                if (manual) toast('Speichern fehlgeschlagen: ' + e.message, false);
+            }
+        }
+        function openSetupModal() {
+            document.getElementById('cfgBin').value = BIN_ID;
+            document.getElementById('cfgKey').value = BIN_KEY;
+            document.getElementById('setupOv').classList.remove('hidden');
+        }
+        function saveSetup() {
+            BIN_ID = document.getElementById('cfgBin').value.trim();
+            BIN_KEY = document.getElementById('cfgKey').value.trim();
+            if (!BIN_ID || !BIN_KEY) { toast('Bin ID und Key erforderlich', false); return; }
+            localStorage.setItem('cr_bin', BIN_ID);
+            localStorage.setItem('cr_key', BIN_KEY);
+            document.getElementById('setupOv').classList.add('hidden');
+            document.getElementById('setupBanner').classList.add('hidden');
+            syncLoad(true);
+        }
+        function clearSetup() {
+            if (!confirm('Verbindung wirklich trennen? Lokale Daten bleiben.')) return;
+            BIN_ID = ''; BIN_KEY = '';
+            localStorage.removeItem('cr_bin'); localStorage.removeItem('cr_key');
+            setSyncUI('local'); synced = false;
+            document.getElementById('setupOv').classList.add('hidden');
+            toast('Verbindung getrennt');
+        }
+        function dismissBanner() { document.getElementById('setupBanner').classList.add('hidden'); }
+
+        /* ── Init ────────────────────────────────────────────────────────── */
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('nameInput').value = username;
+            updateAv();
+            // Always hide banner — credentials are pre-configured
+            document.getElementById('setupBanner').classList.add('hidden');
+            // Load from JSONbin on startup
+            syncLoad();
+            render(); renderStats();
+        });
+
+        function onNameChange() {
+            username = document.getElementById('nameInput').value.trim();
+            localStorage.setItem('cr_name', username);
+            updateAv();
+        }
+        function updateAv() {
+            const av = document.getElementById('headerAv');
+            av.textContent = username ? username[0].toUpperCase() : '?';
+            av.style.background = username ? uColor(username) : 'var(--acc)';
+        }
+
+        /* ── Type ────────────────────────────────────────────────────────── */
+        function setType(t) {
+            type = t; filter = 'all';
+            document.getElementById('tabFilme').classList.toggle('on', t === 'filme');
+            document.getElementById('tabSerien').classList.toggle('on', t === 'serien');
+            render(); renderStats();
+        }
+
+        /* ── Stats ───────────────────────────────────────────────────────── */
+        function renderStats() {
+            const list = data[type];
+            const totalR = list.reduce((s, x) => s + x.ratings.length, 0);
+            const myR = list.reduce((s, x) => s + x.ratings.filter(r => r.user === username).length, 0);
+            const avgs = list.filter(x => x.ratings.length).map(avg);
+            const ga = avgs.length ? (avgs.reduce((a, b) => a + b, 0) / avgs.length).toFixed(1) : '—';
+            document.getElementById('stats').innerHTML = [
+                { v: list.length, l: type === 'filme' ? 'Filme' : 'Serien' },
+                { v: totalR, l: 'Bewertungen' },
+                { v: myR, l: 'Meine' },
+                { v: ga, l: '⌀ Score' },
+            ].map(s => `<div class="stat"><div class="stat-v">${s.v}</div><div class="stat-l">${s.l}</div></div>`).join('');
+        }
+
+        /* ── Render ──────────────────────────────────────────────────────── */
+        function render() {
+            const q = (document.getElementById('searchI').value || '').toLowerCase();
+            let list = data[type].filter(x =>
+                x.title.toLowerCase().includes(q) || (x.genres || []).some(g => g.toLowerCase().includes(q))
+            );
+            if (filter !== 'all') list = list.filter(x => (x.genres || []).includes(filter));
+
+            /* genre chips */
+            /* genre chips: presets + any extra genres from real data */
+            const dataGenres = new Set(data[type].flatMap(x => x.genres || []));
+            const genres = [...new Set([...PRESET_GENRES[type], ...dataGenres])];
+            document.getElementById('chipsRow').innerHTML =
+                `<button class="chip${filter === 'all' ? ' on' : ''}" onclick="setFilter('all')">Alle</button>`
+                + genres.map(g => `<button class="chip${filter === g ? ' on' : ''}" onclick="setFilter('${g}')">${g}</button>`).join('')
+                + `<select class="sort-sel" onchange="render()" id="sortSel"><option value="recent">Neueste</option><option value="top">Top bewertet</option><option value="az">A – Z</option><option value="raters">Meist bewertet</option></select>`;
+
+            const sort = document.getElementById('sortSel')?.value || 'recent';
+            if (sort === 'top') list.sort((a, b) => avg(b) - avg(a));
+            else if (sort === 'az') list.sort((a, b) => a.title.localeCompare(b.title));
+            else if (sort === 'raters') list.sort((a, b) => b.ratings.length - a.ratings.length);
+            else list.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+
+            const c = document.getElementById('container');
+            if (!list.length) {
+                c.innerHTML = `<div class="empty"><div class="empty-icon">${type === 'filme' ? '🎬' : '📺'}</div><h3>Keine Treffer</h3><p>Füge deinen ersten Titel hinzu.</p></div>`;
+                return;
+            }
+            c.innerHTML = `<div class="grid">${list.map(cardHtml).join('')}</div>`;
+        }
+
+        function setFilter(f) { filter = f; render(); }
+
+        function cardHtml(x) {
+            const a = avg(x);
+            const isNew = (Date.now() - new Date(x.addedAt)) < 86400000 * 4;
+            const dots = x.ratings.slice(0, 4).map(r => `<div class="rater-dot" title="${r.user}" style="background:${uColor(r.user)}">${r.user[0]}</div>`).join('');
+            return `<div class="card" onclick="openDetail('${x.id}')">
+    <div class="poster-wrap">
+      ${isNew ? `<div class="badge b-new">NEU</div>` : ''}
+      ${x.seasons ? `<div class="badge b-ep" style="${isNew ? 'top:32px' : 'top:8px'}">${x.seasons}S</div>` : ''}
+      ${x.poster ? `<img src="${esc(x.poster)}" loading="lazy" alt="${esc(x.title)}">` : `<div class="poster-placeholder">${x.type === 'serien' ? '📺' : '🎬'}</div>`}
+    </div>
+    <div class="card-body">
+      <div class="card-title" title="${esc(x.title)}">${esc(x.title)}</div>
+      <div class="card-sub">${x.year || ''}${x.runtime ? ' · ' + x.runtime + ' min' : x.seasons ? ' · ' + x.seasons + ' Staffeln' : ''}</div>
+      <div class="card-meta">
+        ${a > 0 ? `<div class="score"><span class="score-star">★</span>${a.toFixed(1)}</div>` : `<span style="font-size:11px;color:var(--sub)">—</span>`}
+        <div class="rater-row">${dots}</div>
+        ${x.ratings.length > 4 ? `<span style="font-size:10px;color:var(--sub)">+${x.ratings.length - 4}</span>` : ''}
+      </div>
+    </div>
+  </div>`;
+        }
+
+        /* ── Detail ──────────────────────────────────────────────────────── */
+        function openDetail(id) {
+            const item = data[type].find(x => x.id === id) || data['filme'].find(x => x.id === id) || data['serien'].find(x => x.id === id);
+            if (!item) return;
+            current = item; stars = 0;
+            document.getElementById('detailOv').classList.remove('hidden');
+            document.getElementById('dTitle').textContent = item.title;
+            document.getElementById('dMeta').textContent = [item.year, item.runtime ? item.runtime + ' min' : '', item.seasons ? item.seasons + ' Staffeln' : ''].filter(Boolean).join(' · ');
+            document.getElementById('dGenres').innerHTML = (item.genres || []).map(g => `<span class="g-pill">${esc(g)}</span>`).join('');
+            const ov = document.getElementById('dOv');
+            ov.textContent = item.overview || 'Keine Beschreibung.';
+            ov.classList.remove('exp');
+            document.getElementById('exBtn').textContent = 'mehr ↓';
+            if (item.poster) {
+                document.getElementById('dPoster').src = item.poster;
+                document.getElementById('dPoster').style.display = '';
+                document.getElementById('dPh').style.display = 'none';
+            } else {
+                document.getElementById('dPoster').style.display = 'none';
+                document.getElementById('dPh').style.display = '';
+                document.getElementById('dPh').textContent = item.type === 'serien' ? '📺' : '🎬';
+            }
+            const my = item.ratings.find(r => r.user === username);
+            stars = my ? my.stars : 0;
+            document.getElementById('revText').value = my ? my.review || '' : '';
+            document.getElementById('delBtn').style.display = my ? '' : 'none';
+            renderPicker(); renderDetailRatings(item);
+        }
+
+        function closeDetailClick(e) { if (e.target === document.getElementById('detailOv')) document.getElementById('detailOv').classList.add('hidden'); }
+        function toggleOv() { const o = document.getElementById('dOv'); o.classList.toggle('exp'); document.getElementById('exBtn').textContent = o.classList.contains('exp') ? 'weniger ↑' : 'mehr ↓'; }
+
+        function renderDetailRatings(item) {
+            const a = avg(item);
+            if (!item.ratings.length) {
+                document.getElementById('avgArea').innerHTML = '';
+                document.getElementById('rList').innerHTML = `<div class="no-ratings">Noch keine Bewertungen — sei der Erste!</div>`;
+                return;
+            }
+            document.getElementById('avgArea').innerHTML = `<div class="avg-row">
+    <div><div class="avg-num">${a.toFixed(1)}</div><div class="avg-stars">${starsEl(a, 14)}</div><div class="avg-count">${item.ratings.length} Bewertung${item.ratings.length > 1 ? 'en' : ''}</div></div>
+    <div class="bar-list">${[5, 4, 3, 2, 1].map(s => { const cnt = item.ratings.filter(r => r.stars === s).length; const p = item.ratings.length ? cnt / item.ratings.length * 100 : 0; return `<div class="bar-row"><span class="bar-label">${s}</span><div class="bar-track"><div class="bar-fill" style="width:${p}%"></div></div><span class="bar-count">${cnt}</span></div>`; }).join('')}</div>
+  </div>`;
+            document.getElementById('rList').innerHTML = `<div class="r-list">${item.ratings.map(r => `<div class="r-entry">
+    <div class="r-av" style="background:${uColor(r.user)}">${r.user[0].toUpperCase()}</div>
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="r-name">${esc(r.user)}</span>
+        <div class="r-stars">${starsEl(r.stars)}</div>
+        <span style="font-size:11px;color:var(--sub)">${r.stars}/5</span>
+      </div>
+      <div class="r-date">${fmtDate(r.date)}</div>
+      ${r.review ? `<div class="r-review">${esc(r.review)}</div>` : ''}
+    </div>
+  </div>`).join('')}</div>`;
+        }
+
+        /* ── Half-star picker ────────────────────────────────────────────── */
+        function renderPicker() {
+            const el = document.getElementById('starPicker');
+            el.innerHTML = [1, 2, 3, 4, 5].map(i => {
+                const fillW = Math.min(Math.max(stars - (i - 1), 0), 1) * 100;
+                return `<div class="star-slot" data-i="${i}">
+              <div class="s-bg">★</div>
+              <div class="s-fill" style="width:${fillW}%">★</div>
+              <div class="s-left"  onmousemove="hoverHalf(${i},true)"  onclick="pickHalf(${i},true)"></div>
+              <div class="s-right" onmousemove="hoverHalf(${i},false)" onclick="pickHalf(${i},false)"></div>
+            </div>`;
+            }).join('');
+            el.onmouseleave = () => renderPicker();
+        }
+        function pickHalf(i, isLeft) { stars = isLeft ? i - 0.5 : i; renderPicker(); }
+        function hoverHalf(i, isLeft) {
+            const val = isLeft ? i - 0.5 : i;
+            document.querySelectorAll('#starPicker .star-slot').forEach(slot => {
+                const si = parseInt(slot.dataset.i);
+                const fill = Math.min(Math.max(val - (si - 1), 0), 1) * 100;
+                slot.querySelector('.s-fill').style.width = fill + '%';
+            });
+        }
+
+        function submitRating() {
+            if (!username) { toast('Gib bitte deinen Namen ein (oben rechts)', false); return; }
+            if (!stars) { toast('Bitte wähle eine Wertung', false); return; }
+            const rev = document.getElementById('revText').value.trim();
+            current.ratings = current.ratings.filter(r => r.user !== username);
+            current.ratings.push({ user: username, stars, review: rev, date: new Date().toISOString() });
+            document.getElementById('delBtn').style.display = '';
+            renderDetailRatings(current); renderStats(); render();
+            syncSave();
+            toast('Bewertung gespeichert');
+        }
+        function deleteRating() {
+            if (!confirm('Deine Bewertung wirklich löschen?')) return;
+            current.ratings = current.ratings.filter(r => r.user !== username);
+            stars = 0;
+            document.getElementById('revText').value = '';
+            document.getElementById('delBtn').style.display = 'none';
+            renderPicker(); renderDetailRatings(current); renderStats(); render();
+            syncSave();
+            toast('Bewertung gelöscht');
+        }
+
+        /* ── Add ─────────────────────────────────────────────────────────── */
+        function openAdd() {
+            document.getElementById('addTitle').textContent = type === 'filme' ? 'Film hinzufügen' : 'Serie hinzufügen';
+            document.getElementById('aSeasonsWrap').style.display = type === 'serien' ? '' : 'none';
+            document.getElementById('addOv').classList.remove('hidden');
+        }
+        function addItem() {
+            const title = document.getElementById('aTitle').value.trim();
+            if (!title) { toast('Titel ist erforderlich', false); return; }
+            const year = document.getElementById('aYear').value.trim();
+            const dup = data[type].find(x => x.title.toLowerCase() === title.toLowerCase());
+            if (dup) { toast('Titel existiert bereits'); document.getElementById('addOv').classList.add('hidden'); openDetail(dup.id); return; }
+            const item = {
+                id: type[0] + Date.now(), type, title, year,
+                genres: document.getElementById('aGenre').value.trim().split(',').map(s => s.trim()).filter(Boolean),
+                poster: document.getElementById('aPoster').value.trim(),
+                overview: document.getElementById('aOv').value.trim(),
+                runtime: 0, seasons: parseInt(document.getElementById('aSeasons').value) || 0,
+                addedAt: new Date().toISOString(), ratings: []
+            };
+            data[type].push(item);
+            document.getElementById('addOv').classList.add('hidden');
+            ['aTitle', 'aYear', 'aGenre', 'aPoster', 'aOv'].forEach(id => document.getElementById(id).value = '');
+            render(); renderStats(); openDetail(item.id);
+            syncSave();
+            toast(`${title} hinzugefügt`);
+        }
+    </script>
+</body>
+
+</html>
