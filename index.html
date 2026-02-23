@@ -1670,13 +1670,22 @@
         };
 
         /* ── Login logic ── */
-        const LOGIN_PASSWORD = 'CS-Raffer';
+        // SHA-256 hash of the login password (not stored in plaintext)
+        const LOGIN_PASSWORD_HASH = 'b6bd0af9500bf2036b9a9be5dca7bd7954189a32dfcf3ed6c3a7744a3848bef4';
 
-        function doLogin() {
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function doLogin() {
             const nameVal = document.getElementById('loginName').value.trim();
             const passVal = document.getElementById('loginPass').value;
             const checked = document.getElementById('loginDisclaimer').checked;
             const errEl = document.getElementById('loginErr');
+            const btn = document.getElementById('loginBtn');
 
             errEl.textContent = '';
 
@@ -1690,7 +1699,13 @@
                 errEl.textContent = 'Bitte bestätige den Datenschutz-Hinweis.';
                 return;
             }
-            if (passVal !== LOGIN_PASSWORD) {
+
+            // Hash the entered password and compare with stored hash
+            btn.disabled = true;
+            const enteredHash = await sha256(passVal);
+            btn.disabled = false;
+
+            if (enteredHash !== LOGIN_PASSWORD_HASH) {
                 document.getElementById('loginPass').classList.add('error');
                 setTimeout(() => document.getElementById('loginPass').classList.remove('error'), 600);
                 errEl.textContent = 'Falsches Passwort.';
