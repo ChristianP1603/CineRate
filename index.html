@@ -141,11 +141,122 @@
             flex-shrink: 0;
         }
 
-        /* ── Main layout ── */
         main {
-            max-width: 1100px;
+            max-width: 1280px;
             margin: 0 auto;
             padding: 40px 24px;
+        }
+
+        .page-layout {
+            display: flex;
+            gap: 28px;
+            align-items: flex-start;
+        }
+
+        .main-col {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: sticky;
+            top: 72px;
+        }
+
+        .sidebar-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--r);
+            overflow: hidden;
+        }
+
+        .sidebar-hd {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--line);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--sub);
+        }
+
+        .sb-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--line);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .sb-item:last-child {
+            border-bottom: none;
+        }
+
+        .sb-item:hover {
+            background: var(--line);
+        }
+
+        .sb-rank {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--sub);
+            width: 14px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sb-thumb {
+            width: 28px;
+            height: 42px;
+            border-radius: 3px;
+            object-fit: cover;
+            background: var(--line);
+            flex-shrink: 0;
+        }
+
+        .sb-thumb-ph {
+            width: 28px;
+            height: 42px;
+            border-radius: 3px;
+            background: var(--line);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .sb-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sb-title {
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sb-sub {
+            font-size: 10px;
+            color: var(--sub);
+            margin-top: 1px;
+        }
+
+        .sb-score {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--acc);
+            flex-shrink: 0;
         }
 
         /* ── Stats row ── */
@@ -180,12 +291,11 @@
             text-transform: uppercase;
         }
 
-        /* ── Toolbar ── */
         .toolbar {
             display: flex;
             gap: 8px;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .search-wrap {
@@ -214,11 +324,6 @@
             font-family: 'Inter', sans-serif;
             outline: none;
             transition: border-color .15s;
-        }
-
-        .search-wrap input:focus {
-            border-color: var(--line2);
-            background: var(--surface);
         }
 
         .search-wrap input::placeholder {
@@ -256,51 +361,128 @@
             background: #c49a38;
         }
 
-        /* ── Genre chips ── */
-        .chips-row {
+        .filter-row {
             display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
+            gap: 8px;
             align-items: center;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
 
-        .chip {
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid var(--line2);
-            background: transparent;
-            color: var(--sub);
-            font-family: 'Inter', sans-serif;
-            transition: all .15s;
-        }
-
-        .chip.on {
-            background: var(--acc-dim);
-            border-color: rgba(212, 168, 73, .35);
-            color: var(--acc);
-        }
-
-        .chip:hover:not(.on) {
-            color: var(--text);
-            border-color: var(--line2);
-            background: var(--surface);
-        }
-
+        .filter-sel,
         .sort-sel {
-            margin-left: auto;
             background: var(--surface);
             border: 1px solid var(--line2);
             border-radius: var(--r);
-            padding: 6px 10px;
-            color: var(--sub);
+            padding: 7px 10px;
+            color: var(--text);
             font-family: 'Inter', sans-serif;
             font-size: 12px;
             cursor: pointer;
             outline: none;
+        }
+
+        .filter-sel {
+            flex: 1;
+        }
+
+        /* Genre Tag Picker */
+        .tag-picker-wrap {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--bg);
+            position: relative;
+        }
+
+        .tag-picker-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 7px 8px;
+            min-height: 38px;
+            cursor: pointer;
+        }
+
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            background: var(--acc-dim);
+            border: 1px solid rgba(212, 168, 73, .35);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--acc);
+        }
+
+        .tag-pill button {
+            background: none;
+            border: none;
+            color: var(--acc);
+            font-size: 11px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            opacity: .7;
+        }
+
+        .tag-pill button:hover {
+            opacity: 1;
+        }
+
+        .tag-placeholder {
+            font-size: 13px;
+            color: var(--sub);
+            padding: 2px 4px;
+        }
+
+        .tag-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border: 1px solid var(--line2);
+            border-radius: 8px;
+            overflow: hidden;
+            max-height: 180px;
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+        }
+
+        .tag-dropdown.open {
+            display: block;
+        }
+
+        .tag-opt {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background .1s;
+        }
+
+        .tag-opt:hover {
+            background: var(--line);
+        }
+
+        .tag-opt.sel {
+            color: var(--acc);
+        }
+
+        .tag-opt.sel::before {
+            content: '✓';
+            font-size: 11px;
+            width: 11px;
+        }
+
+        .tag-opt:not(.sel)::before {
+            content: '';
+            display: inline-block;
+            width: 11px;
         }
 
         /* ── Film grid ── */
@@ -1028,6 +1210,12 @@
             backdrop-filter: blur(6px);
         }
 
+        @media (max-width: 960px) {
+            .sidebar {
+                display: none;
+            }
+        }
+
         @media (max-width: 580px) {
             header {
                 padding: 0 16px;
@@ -1156,7 +1344,7 @@
     </div>
 
     <!-- ADD OVERLAY -->
-    <div class="overlay hidden" id="addOv" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="overlay hidden" id="addOv" onclick="if(event.target===this)closeAddOv()">
         <div class="add-modal">
             <h2 id="addTitle">Hinzufügen</h2>
             <p>Füge einen Titel manuell hinzu</p>
@@ -1167,13 +1355,20 @@
                 <div class="field" style="flex:1" id="aSeasonsWrap"><label>Staffeln</label><input id="aSeasons"
                         type="number" min="1" placeholder="3"></div>
             </div>
-            <div class="field"><label>Genres</label><input id="aGenre" placeholder="Drama, Thriller"></div>
+            <div class="field">
+                <label>Genres</label>
+                <div class="tag-picker-wrap" id="genrePickerWrap">
+                    <div class="tag-picker-tags" id="genrePickerTags" onclick="toggleGenreDropdown(event)">
+                        <span class="tag-placeholder" id="genrePlaceholder">Genre auswählen…</span>
+                    </div>
+                    <div class="tag-dropdown" id="genreDropdown"></div>
+                </div>
+            </div>
             <div class="field"><label>Poster-URL</label><input id="aPoster" placeholder="https://..."></div>
             <div class="field"><label>Beschreibung</label><textarea id="aOv" placeholder="Optional…"></textarea></div>
             <div class="action-row">
                 <button class="btn btn-primary" onclick="addItem()">Hinzufügen</button>
-                <button class="btn"
-                    onclick="document.getElementById('addOv').classList.add('hidden')">Abbrechen</button>
+                <button class="btn" onclick="closeAddOv()">Abbrechen</button>
             </div>
         </div>
     </div>
@@ -1182,38 +1377,57 @@
 
     <main>
         <div class="stats" id="stats"></div>
-
-        <div class="toolbar" style="margin-top:28px">
-            <div class="search-wrap">
-                <span class="search-icon">⌕</span>
-                <input id="searchI" type="text" placeholder="Suchen…" oninput="render()">
+        <div class="page-layout">
+            <div class="main-col">
+                <div class="toolbar" style="margin-top:28px">
+                    <div class="search-wrap">
+                        <span class="search-icon">⌕</span>
+                        <input id="searchI" type="text" placeholder="Suchen…" oninput="render()">
+                    </div>
+                    <select class="sort-sel" id="sortSel" onchange="setSort(this.value)">
+                        <option value="recent">Neueste</option>
+                        <option value="top">Top bewertet</option>
+                        <option value="az">A – Z</option>
+                        <option value="raters">Meist bewertet</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="openAdd()">+ Hinzufügen</button>
+                </div>
+                <div class="filter-row">
+                    <select class="filter-sel" id="filterSel" onchange="setFilter(this.value)">
+                        <option value="all">Alle Genres</option>
+                    </select>
+                </div>
+                <div id="container"></div>
             </div>
-            <button class="btn btn-primary" onclick="openAdd()">+ Hinzufügen</button>
+            <div class="sidebar">
+                <div class="sidebar-card">
+                    <div class="sidebar-hd">Zuletzt hinzugefügt</div>
+                    <div id="sidebarRecent"></div>
+                </div>
+                <div class="sidebar-card">
+                    <div class="sidebar-hd">Top bewertet</div>
+                    <div id="sidebarTop"></div>
+                </div>
+            </div>
         </div>
-
-        <div class="chips-row" id="chipsRow"></div>
-        <div id="container"></div>
     </main>
 
     <script>
-        /* ── Data ─────────────────────────────────────────────────────────── */
-        // Fixed genre presets — always visible as filter chips
         const PRESET_GENRES = {
             filme: ['Action', 'Abenteuer', 'Animation', 'Biografie', 'Drama', 'Fantasy', 'Horror', 'Historisch', 'Komödie', 'Krimi', 'Romanze', 'Sci-Fi', 'Thriller', 'Dokumentation'],
             serien: ['Action', 'Abenteuer', 'Animation', 'Drama', 'Fantasy', 'Horror', 'Komödie', 'Krimi', 'Sci-Fi', 'Thriller', 'Mystery', 'Dokumentation'],
         };
 
         const data = { filme: [], serien: [] };
-        let type = 'filme', filter = 'all', current = null, stars = 0;
+        let type = 'filme', filter = 'all', sortBy = 'recent', current = null, stars = 0;
         let username = localStorage.getItem('cr_name') || '';
-        // ── Shared credentials (pre-configured, no setup needed) ──
         const DEFAULT_BIN = '699b71c443b1c97be99495b7';
         const DEFAULT_KEY = '$2a$10$7jyNiQ97J51tdDZnnzXN1ODFwbW4C9z8rbBNZukEGInpEUpQk32KK';
         let BIN_ID = localStorage.getItem('cr_bin') || DEFAULT_BIN;
         let BIN_KEY = localStorage.getItem('cr_key') || DEFAULT_KEY;
         let synced = false;
+        let selectedGenres = [];
 
-        /* ── Helpers ─────────────────────────────────────────────────────── */
         function avg(x) { if (!x.ratings.length) return 0; return x.ratings.reduce((s, r) => s + r.stars, 0) / x.ratings.length; }
         function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
         function fmtDate(d) { return new Date(d).toLocaleDateString('de-DE', { year: 'numeric', month: 'short', day: 'numeric' }); }
@@ -1221,10 +1435,7 @@
         function starsEl(n, size = 12) {
             return [1, 2, 3, 4, 5].map(i => {
                 const fill = Math.min(Math.max(n - (i - 1), 0), 1) * 100;
-                return `<span style="position:relative;display:inline-block;font-size:${size}px;line-height:1">
-              <span style="color:var(--line2)">★</span>
-              <span style="position:absolute;left:0;top:0;overflow:hidden;width:${fill}%;color:var(--acc)">★</span>
-            </span>`;
+                return `<span style="position:relative;display:inline-block;font-size:${size}px;line-height:1"><span style="color:var(--line2)">★</span><span style="position:absolute;left:0;top:0;overflow:hidden;width:${fill}%;color:var(--acc)">★</span></span>`;
             }).join('');
         }
         function toast(msg, ok = true) {
@@ -1234,7 +1445,6 @@
             setTimeout(() => d.remove(), 3500);
         }
 
-        /* ── JSONbin sync ────────────────────────────────────────────────── */
         function setSyncUI(state) {
             const dot = document.getElementById('syncDot');
             const txt = document.getElementById('syncText');
@@ -1245,15 +1455,13 @@
             if (!BIN_ID || !BIN_KEY) return;
             setSyncUI('busy');
             try {
-                const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { 'X-Access-Key': BIN_KEY }
-                });
+                const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Access-Key': BIN_KEY } });
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 const j = await r.json();
                 const d = j.record;
                 if (d && Array.isArray(d.filme)) { data.filme = d.filme; data.serien = d.serien || []; }
                 synced = true; setSyncUI('ok');
-                render(); renderStats();
+                render(); renderStats(); renderSidebar();
                 if (manual) toast('Daten geladen ✓');
             } catch (e) {
                 setSyncUI('err');
@@ -1302,15 +1510,18 @@
         }
         function dismissBanner() { document.getElementById('setupBanner').classList.add('hidden'); }
 
-        /* ── Init ────────────────────────────────────────────────────────── */
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('nameInput').value = username;
             updateAv();
-            // Always hide banner — credentials are pre-configured
             document.getElementById('setupBanner').classList.add('hidden');
-            // Load from JSONbin on startup
             syncLoad();
-            render(); renderStats();
+            render(); renderStats(); renderSidebar();
+        });
+
+        document.addEventListener('click', e => {
+            const dd = document.getElementById('genreDropdown');
+            const wrap = document.getElementById('genrePickerWrap');
+            if (dd && wrap && !wrap.contains(e.target)) dd.classList.remove('open');
         });
 
         function onNameChange() {
@@ -1324,7 +1535,6 @@
             av.style.background = username ? uColor(username) : 'var(--acc)';
         }
 
-        /* ── Type ────────────────────────────────────────────────────────── */
         function setType(t) {
             type = t; filter = 'all';
             document.getElementById('tabFilme').classList.toggle('on', t === 'filme');
@@ -1332,7 +1542,9 @@
             render(); renderStats();
         }
 
-        /* ── Stats ───────────────────────────────────────────────────────── */
+        function setSort(v) { sortBy = v; render(); }
+        function setFilter(v) { filter = v; render(); }
+
         function renderStats() {
             const list = data[type];
             const totalR = list.reduce((s, x) => s + x.ratings.length, 0);
@@ -1347,7 +1559,6 @@
             ].map(s => `<div class="stat"><div class="stat-v">${s.v}</div><div class="stat-l">${s.l}</div></div>`).join('');
         }
 
-        /* ── Render ──────────────────────────────────────────────────────── */
         function render() {
             const q = (document.getElementById('searchI').value || '').toLowerCase();
             let list = data[type].filter(x =>
@@ -1355,19 +1566,17 @@
             );
             if (filter !== 'all') list = list.filter(x => (x.genres || []).includes(filter));
 
-            /* genre chips */
-            /* genre chips: presets + any extra genres from real data */
             const dataGenres = new Set(data[type].flatMap(x => x.genres || []));
             const genres = [...new Set([...PRESET_GENRES[type], ...dataGenres])];
-            document.getElementById('chipsRow').innerHTML =
-                `<button class="chip${filter === 'all' ? ' on' : ''}" onclick="setFilter('all')">Alle</button>`
-                + genres.map(g => `<button class="chip${filter === g ? ' on' : ''}" onclick="setFilter('${g}')">${g}</button>`).join('')
-                + `<select class="sort-sel" onchange="render()" id="sortSel"><option value="recent">Neueste</option><option value="top">Top bewertet</option><option value="az">A – Z</option><option value="raters">Meist bewertet</option></select>`;
+            const filterSel = document.getElementById('filterSel');
+            if (filterSel) {
+                filterSel.innerHTML = `<option value="all"${filter === 'all' ? ' selected' : ''}>Alle Genres</option>`
+                    + genres.map(g => `<option value="${esc(g)}"${filter === g ? ' selected' : ''}>${esc(g)}</option>`).join('');
+            }
 
-            const sort = document.getElementById('sortSel')?.value || 'recent';
-            if (sort === 'top') list.sort((a, b) => avg(b) - avg(a));
-            else if (sort === 'az') list.sort((a, b) => a.title.localeCompare(b.title));
-            else if (sort === 'raters') list.sort((a, b) => b.ratings.length - a.ratings.length);
+            if (sortBy === 'top') list.sort((a, b) => avg(b) - avg(a));
+            else if (sortBy === 'az') list.sort((a, b) => a.title.localeCompare(b.title));
+            else if (sortBy === 'raters') list.sort((a, b) => b.ratings.length - a.ratings.length);
             else list.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
 
             const c = document.getElementById('container');
@@ -1378,7 +1587,35 @@
             c.innerHTML = `<div class="grid">${list.map(cardHtml).join('')}</div>`;
         }
 
-        function setFilter(f) { filter = f; render(); }
+        function renderSidebar() {
+            const all = [...data.filme, ...data.serien];
+
+            const recent = [...all].sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt)).slice(0, 5);
+            document.getElementById('sidebarRecent').innerHTML = recent.length
+                ? recent.map((x, i) => sbItemHtml(x, i + 1, false)).join('')
+                : '<div style="padding:14px;font-size:12px;color:var(--sub)">Noch keine Einträge</div>';
+
+            const top = [...all].filter(x => x.ratings.length > 0).sort((a, b) => avg(b) - avg(a)).slice(0, 5);
+            document.getElementById('sidebarTop').innerHTML = top.length
+                ? top.map((x, i) => sbItemHtml(x, i + 1, true)).join('')
+                : '<div style="padding:14px;font-size:12px;color:var(--sub)">Noch keine Bewertungen</div>';
+        }
+
+        function sbItemHtml(x, rank, showScore) {
+            const a = avg(x);
+            const thumb = x.poster
+                ? `<img class="sb-thumb" src="${esc(x.poster)}" alt="" loading="lazy">`
+                : `<div class="sb-thumb-ph">${x.type === 'serien' ? '📺' : '🎬'}</div>`;
+            return `<div class="sb-item" onclick="openDetail('${x.id}')">
+                <span class="sb-rank">${rank}</span>
+                ${thumb}
+                <div class="sb-info">
+                    <div class="sb-title" title="${esc(x.title)}">${esc(x.title)}</div>
+                    <div class="sb-sub">${x.year || '—'}${x.type === 'serien' ? ' · Serie' : ' · Film'}</div>
+                </div>
+                ${showScore && a > 0 ? `<span class="sb-score">★ ${a.toFixed(1)}</span>` : ''}
+            </div>`;
+        }
 
         function cardHtml(x) {
             const a = avg(x);
@@ -1402,9 +1639,8 @@
   </div>`;
         }
 
-        /* ── Detail ──────────────────────────────────────────────────────── */
         function openDetail(id) {
-            const item = data[type].find(x => x.id === id) || data['filme'].find(x => x.id === id) || data['serien'].find(x => x.id === id);
+            const item = data[type].find(x => x.id === id) || data.filme.find(x => x.id === id) || data.serien.find(x => x.id === id);
             if (!item) return;
             current = item; stars = 0;
             document.getElementById('detailOv').classList.remove('hidden');
@@ -1459,17 +1695,11 @@
   </div>`).join('')}</div>`;
         }
 
-        /* ── Half-star picker ────────────────────────────────────────────── */
         function renderPicker() {
             const el = document.getElementById('starPicker');
             el.innerHTML = [1, 2, 3, 4, 5].map(i => {
                 const fillW = Math.min(Math.max(stars - (i - 1), 0), 1) * 100;
-                return `<div class="star-slot" data-i="${i}">
-              <div class="s-bg">★</div>
-              <div class="s-fill" style="width:${fillW}%">★</div>
-              <div class="s-left"  onmousemove="hoverHalf(${i},true)"  onclick="pickHalf(${i},true)"></div>
-              <div class="s-right" onmousemove="hoverHalf(${i},false)" onclick="pickHalf(${i},false)"></div>
-            </div>`;
+                return `<div class="star-slot" data-i="${i}"><div class="s-bg">★</div><div class="s-fill" style="width:${fillW}%">★</div><div class="s-left" onmousemove="hoverHalf(${i},true)" onclick="pickHalf(${i},true)"></div><div class="s-right" onmousemove="hoverHalf(${i},false)" onclick="pickHalf(${i},false)"></div></div>`;
             }).join('');
             el.onmouseleave = () => renderPicker();
         }
@@ -1478,8 +1708,7 @@
             const val = isLeft ? i - 0.5 : i;
             document.querySelectorAll('#starPicker .star-slot').forEach(slot => {
                 const si = parseInt(slot.dataset.i);
-                const fill = Math.min(Math.max(val - (si - 1), 0), 1) * 100;
-                slot.querySelector('.s-fill').style.width = fill + '%';
+                slot.querySelector('.s-fill').style.width = Math.min(Math.max(val - (si - 1), 0), 1) * 100 + '%';
             });
         }
 
@@ -1490,7 +1719,7 @@
             current.ratings = current.ratings.filter(r => r.user !== username);
             current.ratings.push({ user: username, stars, review: rev, date: new Date().toISOString() });
             document.getElementById('delBtn').style.display = '';
-            renderDetailRatings(current); renderStats(); render();
+            renderDetailRatings(current); renderStats(); render(); renderSidebar();
             syncSave();
             toast('Bewertung gespeichert');
         }
@@ -1500,35 +1729,92 @@
             stars = 0;
             document.getElementById('revText').value = '';
             document.getElementById('delBtn').style.display = 'none';
-            renderPicker(); renderDetailRatings(current); renderStats(); render();
+            renderPicker(); renderDetailRatings(current); renderStats(); render(); renderSidebar();
             syncSave();
             toast('Bewertung gelöscht');
         }
 
-        /* ── Add ─────────────────────────────────────────────────────────── */
+        function toggleGenreDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('genreDropdown').classList.toggle('open');
+        }
+
+        function buildGenreDropdown() {
+            const genres = PRESET_GENRES[type];
+            const dd = document.getElementById('genreDropdown');
+            dd.innerHTML = genres.map(g => {
+                const sel = selectedGenres.includes(g);
+                return `<div class="tag-opt${sel ? ' sel' : ''}" onclick="toggleGenre('${g}', event)">${g}</div>`;
+            }).join('');
+        }
+
+        function toggleGenre(g, e) {
+            e.stopPropagation();
+            if (selectedGenres.includes(g)) {
+                selectedGenres = selectedGenres.filter(x => x !== g);
+            } else {
+                selectedGenres.push(g);
+            }
+            buildGenreDropdown();
+            renderGenreTags();
+        }
+
+        function removeGenre(g) {
+            selectedGenres = selectedGenres.filter(x => x !== g);
+            buildGenreDropdown();
+            renderGenreTags();
+        }
+
+        function renderGenreTags() {
+            const container = document.getElementById('genrePickerTags');
+            const ph = document.getElementById('genrePlaceholder');
+            if (selectedGenres.length === 0) {
+                container.innerHTML = '';
+                const span = document.createElement('span');
+                span.className = 'tag-placeholder';
+                span.id = 'genrePlaceholder';
+                span.textContent = 'Genre auswählen…';
+                container.appendChild(span);
+            } else {
+                container.innerHTML = selectedGenres.map(g =>
+                    `<span class="tag-pill">${esc(g)}<button onclick="removeGenre('${g}');event.stopPropagation()" title="Entfernen">✕</button></span>`
+                ).join('');
+            }
+        }
+
         function openAdd() {
             document.getElementById('addTitle').textContent = type === 'filme' ? 'Film hinzufügen' : 'Serie hinzufügen';
             document.getElementById('aSeasonsWrap').style.display = type === 'serien' ? '' : 'none';
+            selectedGenres = [];
+            buildGenreDropdown();
+            renderGenreTags();
             document.getElementById('addOv').classList.remove('hidden');
         }
+
+        function closeAddOv() {
+            document.getElementById('addOv').classList.add('hidden');
+            document.getElementById('genreDropdown').classList.remove('open');
+        }
+
         function addItem() {
             const title = document.getElementById('aTitle').value.trim();
             if (!title) { toast('Titel ist erforderlich', false); return; }
             const year = document.getElementById('aYear').value.trim();
             const dup = data[type].find(x => x.title.toLowerCase() === title.toLowerCase());
-            if (dup) { toast('Titel existiert bereits'); document.getElementById('addOv').classList.add('hidden'); openDetail(dup.id); return; }
+            if (dup) { toast('Titel existiert bereits'); closeAddOv(); openDetail(dup.id); return; }
             const item = {
                 id: type[0] + Date.now(), type, title, year,
-                genres: document.getElementById('aGenre').value.trim().split(',').map(s => s.trim()).filter(Boolean),
+                genres: [...selectedGenres],
                 poster: document.getElementById('aPoster').value.trim(),
                 overview: document.getElementById('aOv').value.trim(),
                 runtime: 0, seasons: parseInt(document.getElementById('aSeasons').value) || 0,
                 addedAt: new Date().toISOString(), ratings: []
             };
             data[type].push(item);
-            document.getElementById('addOv').classList.add('hidden');
-            ['aTitle', 'aYear', 'aGenre', 'aPoster', 'aOv'].forEach(id => document.getElementById(id).value = '');
-            render(); renderStats(); openDetail(item.id);
+            closeAddOv();
+            ['aTitle', 'aYear', 'aPoster', 'aOv'].forEach(id => document.getElementById(id).value = '');
+            selectedGenres = [];
+            render(); renderStats(); renderSidebar(); openDetail(item.id);
             syncSave();
             toast(`${title} hinzugefügt`);
         }
