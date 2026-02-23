@@ -1241,182 +1241,491 @@
                 height: 160px;
             }
         }
+
+        /* ── Login Screen ── */
+        #loginScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #loginScreen.hidden {
+            display: none;
+        }
+
+        .login-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(212, 168, 73, .12) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(212, 168, 73, .07) 0%, transparent 55%);
+            pointer-events: none;
+        }
+
+        .login-card {
+            position: relative;
+            background: #111111;
+            border: 1px solid #1f1f1f;
+            border-radius: 18px;
+            padding: 44px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .04) inset;
+        }
+
+        .login-logo {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            color: #ececec;
+            margin-bottom: 6px;
+        }
+
+        .login-logo span {
+            color: #d4a849;
+        }
+
+        .login-tagline {
+            font-size: 12px;
+            color: #6e6e6e;
+            margin-bottom: 36px;
+        }
+
+        .login-field {
+            margin-bottom: 16px;
+        }
+
+        .login-field label {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #6e6e6e;
+            margin-bottom: 7px;
+        }
+
+        .login-field input {
+            width: 100%;
+            background: #0d0d0d;
+            border: 1px solid #222;
+            border-radius: 10px;
+            padding: 11px 14px;
+            color: #ececec;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .login-field input:focus {
+            border-color: rgba(212, 168, 73, .5);
+            box-shadow: 0 0 0 3px rgba(212, 168, 73, .1);
+        }
+
+        .login-field input.error {
+            border-color: rgba(248, 113, 113, .5);
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, .1);
+            animation: shake .3s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-6px);
+            }
+
+            75% {
+                transform: translateX(6px);
+            }
+        }
+
+        .login-disclaimer {
+            background: rgba(212, 168, 73, .06);
+            border: 1px solid rgba(212, 168, 73, .18);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            margin-top: 4px;
+        }
+
+        .login-disclaimer-text {
+            font-size: 11px;
+            color: #7a7a7a;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .login-disclaimer-text strong {
+            color: #a0a0a0;
+        }
+
+        .login-check-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .login-check-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            accent-color: #d4a849;
+            flex-shrink: 0;
+            margin-top: 1px;
+            cursor: pointer;
+        }
+
+        .login-check-label {
+            font-size: 12px;
+            color: #9a9a9a;
+            line-height: 1.5;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .login-check-label strong {
+            color: #d4a849;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            background: #d4a849;
+            color: #000;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: background .2s, transform .1s, box-shadow .2s;
+            letter-spacing: .01em;
+        }
+
+        .login-btn:hover {
+            background: #c49a38;
+            box-shadow: 0 4px 16px rgba(212, 168, 73, .3);
+        }
+
+        .login-btn:active {
+            transform: scale(.98);
+        }
+
+        .login-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .login-err {
+            font-size: 12px;
+            color: #f87171;
+            margin-bottom: 12px;
+            min-height: 18px;
+            text-align: center;
+        }
+
+        .app-hidden {
+            display: none !important;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
-    <header>
-        <div class="logo">Cine<span>Rate</span></div>
-        <div class="type-switch">
-            <button class="tt on" id="tabFilme" onclick="setType('filme')">Filme</button>
-            <button class="tt" id="tabSerien" onclick="setType('serien')">Serien</button>
-        </div>
-        <div class="name-field">
-            <input id="nameInput" type="text" placeholder="Dein Name" maxlength="25" oninput="onNameChange()">
-            <div class="av" id="headerAv">?</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;margin-left:12px">
-            <div class="sync-dot" id="syncDot"></div>
-            <span style="font-size:11px;color:var(--sub)" id="syncText">lokal</span>
-        </div>
-        <button class="btn" style="padding:5px 12px;font-size:12px" onclick="openSetupModal()">⚙ Setup</button>
-    </header>
+    <!-- ═══════════  LOGIN SCREEN  ═══════════ -->
+    <div id="loginScreen">
+        <div class="login-bg"></div>
+        <div class="login-card">
+            <div class="login-logo">Cine<span>Rate</span></div>
+            <div class="login-tagline">Privater Film & Serien Tracker</div>
 
-    <!-- SETUP BANNER (shown when not configured) -->
-    <div class="setup-banner" id="setupBanner">
-        <span>💡 Verbinde eine JSONbin-Datenbank, um Daten mit Freunden zu teilen —</span>
-        <button class="btn btn-primary" style="padding:5px 14px;font-size:12px" onclick="openSetupModal()">Jetzt
-            einrichten</button>
-        <button class="btn" style="padding:5px 10px;font-size:12px;margin-left:auto"
-            onclick="dismissBanner()">✕</button>
+            <div class="login-field">
+                <label>Dein Name (erscheint oben rechts)</label>
+                <input type="text" id="loginName" placeholder="z.B. Chris" maxlength="25" autocomplete="nickname"
+                    autocapitalize="words">
+            </div>
+
+            <div class="login-field">
+                <label>Passwort</label>
+                <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"
+                    onkeydown="if(event.key==='Enter')doLogin()">
+            </div>
+
+            <div class="login-disclaimer">
+                <div class="login-disclaimer-text">
+                    <strong>⚠ Datenschutz-Hinweis</strong><br>
+                    Der Betreiber dieser Website übernimmt <strong>keinerlei Haftung</strong> für datenschutzrechtliche
+                    Verstöße. Jeder Nutzer ist selbst dafür verantwortlich, ausschließlich Inhalte hochzuladen
+                    und zu teilen, für die er die entsprechenden Rechte besitzt. Es dürfen nur Inhalte
+                    verwendet werden, die <strong>eigenes Eigentum</strong> sind oder für die eine
+                    ausdrückliche Genehmigung vorliegt.
+                </div>
+                <label class="login-check-row">
+                    <input type="checkbox" id="loginDisclaimer">
+                    <span class="login-check-label">Ich habe den Hinweis gelesen und bestätige, dass ich <strong>nur
+                            eigene Inhalte</strong> hochladen werde. Mir ist bekannt, dass der Betreiber keine Haftung
+                        übernimmt.</span>
+                </label>
+            </div>
+
+            <div class="login-err" id="loginErr"></div>
+            <button class="login-btn" id="loginBtn" onclick="doLogin()">Einloggen →</button>
+        </div>
     </div>
+    <!-- ════════════════════════════════════ -->
 
-    <!-- JSONBIN SETUP OVERLAY -->
-    <div class="overlay hidden" id="setupOv" onclick="if(event.target===this)this.classList.add('hidden')">
-        <div class="setup-modal">
-            <h2>Sync einrichten</h2>
-            <p>Speichere Daten in einer kostenlosen <a href="https://jsonbin.io"
-                    target="_blank">JSONbin.io</a>-Datenbank. Alle Freunde, die denselben Bin und Key verwenden, sehen
-                dieselben Daten.<br><br><strong>Setup (einmalig):</strong><br>1. Account bei jsonbin.io erstellen<br>2.
-                Neuen Bin anlegen, Inhalt: <code>{"filme":[],"serien":[]}</code><br>3. Master Key + Bin ID unten
-                eintragen</p>
-            <div class="field"><label>Bin ID</label><input id="cfgBin" placeholder="64abc123..."></div>
-            <div class="field"><label>Master Key</label><input id="cfgKey" type="password" placeholder="$2a$10$...">
+    <!-- App content – hidden until login -->
+    <div id="appRoot" class="app-hidden">
+
+        <!-- HEADER -->
+        <header>
+            <div class="logo">Cine<span>Rate</span></div>
+            <div class="type-switch">
+                <button class="tt on" id="tabFilme" onclick="setType('filme')">Filme</button>
+                <button class="tt" id="tabSerien" onclick="setType('serien')">Serien</button>
             </div>
-            <p style="font-size:11px;color:var(--sub);margin-top:-4px;margin-bottom:16px">Beide Werte werden nur lokal
-                in deinem Browser gespeichert.</p>
-            <div class="action-row">
-                <button class="btn btn-primary" onclick="saveSetup()">Verbinden &amp; laden</button>
-                <button class="btn"
-                    onclick="document.getElementById('setupOv').classList.add('hidden')">Abbrechen</button>
+            <div class="name-field" id="nameDisplay" style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+                <span id="headerNameLabel" style="font-size:13px;color:var(--sub)"></span>
+                <div class="av" id="headerAv">?</div>
             </div>
-            <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
-                <p style="font-size:11px;color:var(--sub);margin-bottom:8px">Bereits verbunden? Daten manuell speichern
-                    / laden:</p>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:12px">
+                <div class="sync-dot" id="syncDot"></div>
+                <span style="font-size:11px;color:var(--sub)" id="syncText">lokal</span>
+            </div>
+            <button class="btn" style="padding:5px 12px;font-size:12px" onclick="openSetupModal()">⚙ Setup</button>
+        </header>
+
+        <!-- SETUP BANNER (shown when not configured) -->
+        <div class="setup-banner" id="setupBanner">
+            <span>💡 Verbinde eine JSONbin-Datenbank, um Daten mit Freunden zu teilen —</span>
+            <button class="btn btn-primary" style="padding:5px 14px;font-size:12px" onclick="openSetupModal()">Jetzt
+                einrichten</button>
+            <button class="btn" style="padding:5px 10px;font-size:12px;margin-left:auto"
+                onclick="dismissBanner()">✕</button>
+        </div>
+
+        <!-- JSONBIN SETUP OVERLAY -->
+        <div class="overlay hidden" id="setupOv" onclick="if(event.target===this)this.classList.add('hidden')">
+            <div class="setup-modal">
+                <h2>Sync einrichten</h2>
+                <p>Speichere Daten in einer kostenlosen <a href="https://jsonbin.io"
+                        target="_blank">JSONbin.io</a>-Datenbank. Alle Freunde, die denselben Bin und Key verwenden,
+                    sehen
+                    dieselben Daten.<br><br><strong>Setup (einmalig):</strong><br>1. Account bei jsonbin.io
+                    erstellen<br>2.
+                    Neuen Bin anlegen, Inhalt: <code>{"filme":[],"serien":[]}</code><br>3. Master Key + Bin ID unten
+                    eintragen</p>
+                <div class="field"><label>Bin ID</label><input id="cfgBin" placeholder="64abc123..."></div>
+                <div class="field"><label>Master Key</label><input id="cfgKey" type="password" placeholder="$2a$10$...">
+                </div>
+                <p style="font-size:11px;color:var(--sub);margin-top:-4px;margin-bottom:16px">Beide Werte werden nur
+                    lokal
+                    in deinem Browser gespeichert.</p>
                 <div class="action-row">
-                    <button class="btn" onclick="syncLoad(true)">↓ Laden</button>
-                    <button class="btn" onclick="syncSave(true)">↑ Speichern</button>
-                    <button class="btn" style="color:#f87171;border-color:rgba(248,113,113,.3)"
-                        onclick="clearSetup()">Verbindung trennen</button>
+                    <button class="btn btn-primary" onclick="saveSetup()">Verbinden &amp; laden</button>
+                    <button class="btn"
+                        onclick="document.getElementById('setupOv').classList.add('hidden')">Abbrechen</button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- DETAIL OVERLAY -->
-    <div class="overlay hidden" id="detailOv" onclick="closeDetailClick(event)">
-        <div class="detail-panel" id="detailPanel">
-            <div class="d-top">
-                <div class="d-poster-ph" id="dPh">🎬</div>
-                <img id="dPoster" class="d-poster" src="" alt="" style="display:none">
-                <div class="d-info">
-                    <div class="d-title" id="dTitle"></div>
-                    <div class="d-meta" id="dMeta"></div>
-                    <div class="d-genres" id="dGenres"></div>
-                    <div class="d-ov" id="dOv"></div>
-                    <button class="expand-btn" id="exBtn" onclick="toggleOv()">mehr ↓</button>
-                </div>
-                <button class="close-btn"
-                    onclick="document.getElementById('detailOv').classList.add('hidden')">✕</button>
-            </div>
-            <div class="d-body">
-                <div class="section-label">Bewertungen</div>
-                <div id="avgArea"></div>
-                <div id="rList"></div>
-
-                <div class="add-box">
-                    <h4>Deine Bewertung</h4>
-                    <div class="star-picker" id="starPicker"></div>
-                    <div class="field">
-                        <label>Rezension (optional)</label>
-                        <textarea id="revText" placeholder="Was dachtest du?"></textarea>
-                    </div>
+                <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+                    <p style="font-size:11px;color:var(--sub);margin-bottom:8px">Bereits verbunden? Daten manuell
+                        speichern
+                        / laden:</p>
                     <div class="action-row">
-                        <button class="btn btn-primary" onclick="submitRating()">Speichern</button>
-                        <button class="del-btn" id="delBtn" style="display:none"
-                            onclick="deleteRating()">Löschen</button>
+                        <button class="btn" onclick="syncLoad(true)">↓ Laden</button>
+                        <button class="btn" onclick="syncSave(true)">↑ Speichern</button>
+                        <button class="btn" style="color:#f87171;border-color:rgba(248,113,113,.3)"
+                            onclick="clearSetup()">Verbindung trennen</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ADD OVERLAY -->
-    <div class="overlay hidden" id="addOv" onclick="if(event.target===this)closeAddOv()">
-        <div class="add-modal">
-            <h2 id="addTitle">Hinzufügen</h2>
-            <p>Füge einen Titel manuell hinzu</p>
-            <div class="field"><label>Titel *</label><input id="aTitle" placeholder="Titel"></div>
-            <div style="display:flex;gap:10px">
-                <div class="field" style="flex:1"><label>Jahr</label><input id="aYear" maxlength="4" placeholder="2024">
-                </div>
-                <div class="field" style="flex:1" id="aSeasonsWrap"><label>Staffeln</label><input id="aSeasons"
-                        type="number" min="1" placeholder="3"></div>
-            </div>
-            <div class="field">
-                <label>Genres</label>
-                <div class="tag-picker-wrap" id="genrePickerWrap">
-                    <div class="tag-picker-tags" id="genrePickerTags" onclick="toggleGenreDropdown(event)">
-                        <span class="tag-placeholder" id="genrePlaceholder">Genre auswählen…</span>
+        <!-- DETAIL OVERLAY -->
+        <div class="overlay hidden" id="detailOv" onclick="closeDetailClick(event)">
+            <div class="detail-panel" id="detailPanel">
+                <div class="d-top">
+                    <div class="d-poster-ph" id="dPh">🎬</div>
+                    <img id="dPoster" class="d-poster" src="" alt="" style="display:none">
+                    <div class="d-info">
+                        <div class="d-title" id="dTitle"></div>
+                        <div class="d-meta" id="dMeta"></div>
+                        <div class="d-genres" id="dGenres"></div>
+                        <div class="d-ov" id="dOv"></div>
+                        <button class="expand-btn" id="exBtn" onclick="toggleOv()">mehr ↓</button>
                     </div>
-                    <div class="tag-dropdown" id="genreDropdown"></div>
+                    <button class="close-btn"
+                        onclick="document.getElementById('detailOv').classList.add('hidden')">✕</button>
                 </div>
-            </div>
-            <div class="field"><label>Poster-URL</label><input id="aPoster" placeholder="https://..."></div>
-            <div class="field"><label>Beschreibung</label><textarea id="aOv" placeholder="Optional…"></textarea></div>
-            <div class="action-row">
-                <button class="btn btn-primary" onclick="addItem()">Hinzufügen</button>
-                <button class="btn" onclick="closeAddOv()">Abbrechen</button>
-            </div>
-        </div>
-    </div>
+                <div class="d-body">
+                    <div class="section-label">Bewertungen</div>
+                    <div id="avgArea"></div>
+                    <div id="rList"></div>
 
-    <div class="toast-wrap" id="toastWrap"></div>
-
-    <main>
-        <div class="stats" id="stats"></div>
-        <div class="page-layout">
-            <div class="main-col">
-                <div class="toolbar" style="margin-top:28px">
-                    <div class="search-wrap">
-                        <span class="search-icon">⌕</span>
-                        <input id="searchI" type="text" placeholder="Suchen…" oninput="render()">
+                    <div class="add-box">
+                        <h4>Deine Bewertung</h4>
+                        <div class="star-picker" id="starPicker"></div>
+                        <div class="field">
+                            <label>Rezension (optional)</label>
+                            <textarea id="revText" placeholder="Was dachtest du?"></textarea>
+                        </div>
+                        <div class="action-row">
+                            <button class="btn btn-primary" onclick="submitRating()">Speichern</button>
+                            <button class="del-btn" id="delBtn" style="display:none"
+                                onclick="deleteRating()">Löschen</button>
+                        </div>
                     </div>
-                    <select class="sort-sel" id="sortSel" onchange="setSort(this.value)">
-                        <option value="recent">Neueste</option>
-                        <option value="top">Top bewertet</option>
-                        <option value="az">A – Z</option>
-                        <option value="raters">Meist bewertet</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="openAdd()">+ Hinzufügen</button>
-                </div>
-                <div class="filter-row">
-                    <select class="filter-sel" id="filterSel" onchange="setFilter(this.value)">
-                        <option value="all">Alle Genres</option>
-                    </select>
-                </div>
-                <div id="container"></div>
-            </div>
-            <div class="sidebar">
-                <div class="sidebar-card">
-                    <div class="sidebar-hd">Zuletzt hinzugefügt</div>
-                    <div id="sidebarRecent"></div>
-                </div>
-                <div class="sidebar-card">
-                    <div class="sidebar-hd">Top bewertet</div>
-                    <div id="sidebarTop"></div>
                 </div>
             </div>
         </div>
-    </main>
+
+        <!-- ADD OVERLAY -->
+        <div class="overlay hidden" id="addOv" onclick="if(event.target===this)closeAddOv()">
+            <div class="add-modal">
+                <h2 id="addTitle">Hinzufügen</h2>
+                <p>Füge einen Titel manuell hinzu</p>
+                <div class="field"><label>Titel *</label><input id="aTitle" placeholder="Titel"></div>
+                <div style="display:flex;gap:10px">
+                    <div class="field" style="flex:1"><label>Jahr</label><input id="aYear" maxlength="4"
+                            placeholder="2024">
+                    </div>
+                    <div class="field" style="flex:1" id="aSeasonsWrap"><label>Staffeln</label><input id="aSeasons"
+                            type="number" min="1" placeholder="3"></div>
+                </div>
+                <div class="field">
+                    <label>Genres</label>
+                    <div class="tag-picker-wrap" id="genrePickerWrap">
+                        <div class="tag-picker-tags" id="genrePickerTags" onclick="toggleGenreDropdown(event)">
+                            <span class="tag-placeholder" id="genrePlaceholder">Genre auswählen…</span>
+                        </div>
+                        <div class="tag-dropdown" id="genreDropdown"></div>
+                    </div>
+                </div>
+                <div class="field"><label>Poster-URL</label><input id="aPoster" placeholder="https://..."></div>
+                <div class="field"><label>Beschreibung</label><textarea id="aOv" placeholder="Optional…"></textarea>
+                </div>
+                <div class="action-row">
+                    <button class="btn btn-primary" onclick="addItem()">Hinzufügen</button>
+                    <button class="btn" onclick="closeAddOv()">Abbrechen</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast-wrap" id="toastWrap"></div>
+
+        <main>
+            <div class="stats" id="stats"></div>
+            <div class="page-layout">
+                <div class="main-col">
+                    <div class="toolbar" style="margin-top:28px">
+                        <div class="search-wrap">
+                            <span class="search-icon">⌕</span>
+                            <input id="searchI" type="text" placeholder="Suchen…" oninput="render()">
+                        </div>
+                        <select class="sort-sel" id="sortSel" onchange="setSort(this.value)">
+                            <option value="recent">Neueste</option>
+                            <option value="top">Top bewertet</option>
+                            <option value="az">A – Z</option>
+                            <option value="raters">Meist bewertet</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="openAdd()">+ Hinzufügen</button>
+                    </div>
+                    <div class="filter-row">
+                        <select class="filter-sel" id="filterSel" onchange="setFilter(this.value)">
+                            <option value="all">Alle Genres</option>
+                        </select>
+                    </div>
+                    <div id="container"></div>
+                </div>
+                <div class="sidebar">
+                    <div class="sidebar-card">
+                        <div class="sidebar-hd">Zuletzt hinzugefügt</div>
+                        <div id="sidebarRecent"></div>
+                    </div>
+                    <div class="sidebar-card">
+                        <div class="sidebar-hd">Top bewertet</div>
+                        <div id="sidebarTop"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div><!-- /#appRoot -->
 
     <script>
         const PRESET_GENRES = {
             filme: ['Action', 'Abenteuer', 'Animation', 'Biografie', 'Drama', 'Fantasy', 'Horror', 'Historisch', 'Komödie', 'Krimi', 'Romanze', 'Sci-Fi', 'Thriller', 'Dokumentation'],
             serien: ['Action', 'Abenteuer', 'Animation', 'Drama', 'Fantasy', 'Horror', 'Komödie', 'Krimi', 'Sci-Fi', 'Thriller', 'Mystery', 'Dokumentation'],
         };
+
+        /* ── Login logic ── */
+        const LOGIN_PASSWORD = 'CS-Raffer';
+
+        function doLogin() {
+            const nameVal = document.getElementById('loginName').value.trim();
+            const passVal = document.getElementById('loginPass').value;
+            const checked = document.getElementById('loginDisclaimer').checked;
+            const errEl = document.getElementById('loginErr');
+
+            errEl.textContent = '';
+
+            if (!nameVal) {
+                document.getElementById('loginName').classList.add('error');
+                setTimeout(() => document.getElementById('loginName').classList.remove('error'), 600);
+                errEl.textContent = 'Bitte gib deinen Namen ein.';
+                return;
+            }
+            if (!checked) {
+                errEl.textContent = 'Bitte bestätige den Datenschutz-Hinweis.';
+                return;
+            }
+            if (passVal !== LOGIN_PASSWORD) {
+                document.getElementById('loginPass').classList.add('error');
+                setTimeout(() => document.getElementById('loginPass').classList.remove('error'), 600);
+                errEl.textContent = 'Falsches Passwort.';
+                document.getElementById('loginPass').value = '';
+                document.getElementById('loginPass').focus();
+                return;
+            }
+
+            // Success — persist session
+            sessionStorage.setItem('cr_loggedIn', '1');
+            sessionStorage.setItem('cr_sessionName', nameVal);
+            localStorage.setItem('cr_name', nameVal);
+
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appRoot').classList.remove('app-hidden');
+
+            username = nameVal;
+            updateAv();
+        }
+
+        // Check if already logged in this session
+        (function checkSession() {
+            const loggedIn = sessionStorage.getItem('cr_loggedIn');
+            const savedName = sessionStorage.getItem('cr_sessionName') || localStorage.getItem('cr_name') || '';
+            if (loggedIn === '1' && savedName) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appRoot').classList.remove('app-hidden');
+                // username will be overwritten below when outer script runs
+                // But we set the localStorage name so it picks it up
+                localStorage.setItem('cr_name', savedName);
+            } else {
+                // Pre-fill name field if known
+                if (savedName) document.getElementById('loginName').value = savedName;
+            }
+        })();
 
         const data = { filme: [], serien: [] };
         let type = 'filme', filter = 'all', sortBy = 'recent', current = null, stars = 0;
@@ -1511,7 +1820,6 @@
         function dismissBanner() { document.getElementById('setupBanner').classList.add('hidden'); }
 
         window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('nameInput').value = username;
             updateAv();
             document.getElementById('setupBanner').classList.add('hidden');
             syncLoad();
@@ -1533,6 +1841,8 @@
             const av = document.getElementById('headerAv');
             av.textContent = username ? username[0].toUpperCase() : '?';
             av.style.background = username ? uColor(username) : 'var(--acc)';
+            const lbl = document.getElementById('headerNameLabel');
+            if (lbl) lbl.textContent = username || '';
         }
 
         function setType(t) {
