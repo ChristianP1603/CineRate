@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#150d2e">
+<meta name="description" content="Punktezähler für das Kartenspiel Flip 7 – mit Bust, Modifikatoren, Flip-7-Bonus und Rundenhistorie.">
+<title>Flip 7 – Punktezähler</title>
+<style>
+/* ============================================================
+   Design-Tokens
+   ============================================================ */
+:root{
+  --bg:#150d2e;
+  --bg-2:#1e1142;
+  --surface:#251650;
+  --surface-2:#2f1d64;
+  --line:rgba(255,255,255,.12);
+  --line-strong:rgba(255,255,255,.24);
+  --ink:#ffffff;
+  --ink-dim:#b6a9dd;
+  --ink-faint:#8577b3;
+
+  --red:#ff3d5e;
+  --orange:#ff8a2b;
+  --yellow:#ffd426;
+  --lime:#9ae630;
+  --green:#22d67f;
+  --teal:#12d6c0;
+  --cyan:#2bc3ff;
+  --blue:#5b7cff;
+  --violet:#a163ff;
+  --pink:#ff5ec4;
+
+  --radius-lg:26px;
+  --radius:18px;
+  --radius-sm:12px;
+
+  --shadow:0 18px 44px rgba(0,0,0,.45);
+  --shadow-sm:0 6px 18px rgba(0,0,0,.32);
+
+  --safe-b:env(safe-area-inset-bottom,0px);
+
+  --font:'Segoe UI Variable Display','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font);
+  color:var(--ink);
+  background:var(--bg);
+  background-image:
+    radial-gradient(900px 620px at 12% -8%, rgba(255,61,94,.24), transparent 60%),
+    radial-gradient(760px 560px at 92% 4%, rgba(43,195,255,.20), transparent 62%),
+    radial-gradient(900px 700px at 50% 108%, rgba(161,99,255,.22), transparent 60%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:none;
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;border-radius:8px}
+
+.app{
+  max-width:760px;
+  margin:0 auto;
+  padding:18px 16px calc(28px + var(--safe-b));
+  min-height:100%;
+}
+.hidden{display:none !important}
+
+/* ============================================================
+   Logo / Kopfzeile
+   ============================================================ */
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;margin:10px 0 4px}
+.brand .tile{
+  display:grid;place-items:center;
+  width:46px;height:58px;border-radius:12px;
+  font-size:30px;font-weight:900;letter-spacing:-1px;
+  color:#221040;
+  box-shadow:var(--shadow-sm), inset 0 -4px 0 rgba(0,0,0,.16);
+}
+.brand .tile:nth-child(1){background:var(--red);transform:rotate(-7deg)}
+.brand .tile:nth-child(2){background:var(--orange);transform:rotate(3deg)}
+.brand .tile:nth-child(3){background:var(--yellow);transform:rotate(-3deg)}
+.brand .tile:nth-child(4){background:var(--teal);transform:rotate(6deg)}
+.brand .tile:nth-child(5){background:var(--cyan);transform:rotate(-5deg);font-size:34px}
+.tagline{text-align:center;color:var(--ink-dim);font-size:14px;margin-top:14px;letter-spacing:.02em}
+
+/* ============================================================
+   Karten-Panels
+   ============================================================ */
+.panel{
+  background:linear-gradient(180deg,var(--surface),var(--bg-2));
+  border:1px solid var(--line);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);
+  padding:18px;
+  margin-top:16px;
+}
+.panel-title{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:14px;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:50px;padding:0 20px;border-radius:15px;
+  font-weight:800;font-size:16px;letter-spacing:.01em;
+  background:var(--surface-2);
+  border:1px solid var(--line-strong);
+  transition:transform .12s ease, filter .12s ease, background .12s ease;
+}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{
+  background:linear-gradient(135deg,var(--red),#ff7043);
+  border-color:transparent;color:#fff;
+  box-shadow:0 10px 26px rgba(255,61,94,.35);
+}
+.btn-go{
+  background:linear-gradient(135deg,var(--teal),var(--cyan));
+  border-color:transparent;color:#0b2233;
+  box-shadow:0 10px 26px rgba(18,214,192,.32);
+}
+.btn-ghost{background:rgba(255,255,255,.06)}
+.btn-block{display:flex;width:100%}
+.btn-sm{min-height:40px;padding:0 14px;font-size:14px;border-radius:12px}
+.btn-icon{
+  width:44px;height:44px;min-height:44px;padding:0;border-radius:13px;
+  display:grid;place-items:center;font-size:19px;
+  background:rgba(255,255,255,.07);border:1px solid var(--line);
+}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ============================================================
+   Setup: Spielerliste
+   ============================================================ */
+.player-row{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(0,0,0,.22);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:8px 8px 8px 12px;
+  margin-bottom:10px;
+}
+.dot{width:16px;height:16px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 3px rgba(255,255,255,.10)}
+.player-row input{
+  flex:1;min-width:0;background:none;border:0;padding:12px 4px;font-size:17px;font-weight:700;
+}
+.player-row input::placeholder{color:var(--ink-faint);font-weight:600}
+
+.field{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:6px 2px}
+.field label{font-weight:700;font-size:15px}
+.field .hint{display:block;color:var(--ink-faint);font-size:12.5px;font-weight:500;margin-top:3px}
+.stepper{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:14px;padding:4px}
+.stepper button{width:38px;height:38px;border-radius:10px;font-size:20px;font-weight:800;background:rgba(255,255,255,.07)}
+.stepper input{
+  width:70px;text-align:center;background:none;border:0;font-size:19px;font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.stepper input{-moz-appearance:textfield}
+
+/* ============================================================
+   Spielstand-Tabelle
+   ============================================================ */
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.round-chip{
+  display:flex;align-items:baseline;gap:8px;
+  background:rgba(0,0,0,.28);border:1px solid var(--line);
+  border-radius:14px;padding:9px 14px;font-weight:800;
+}
+.round-chip b{font-size:19px}
+.round-chip span{color:var(--ink-faint);font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.spacer{flex:1}
+
+.score-item{
+  position:relative;overflow:hidden;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;gap:12px;
+  background:rgba(0,0,0,.24);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:13px 15px;
+  margin-bottom:10px;
+}
+.score-item::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--pc);
+}
+.rank{
+  width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+  font-size:14px;font-weight:900;background:rgba(255,255,255,.08);color:var(--ink-dim);
+}
+.score-item.lead .rank{background:var(--yellow);color:#3a2a00}
+.p-name{font-weight:800;font-size:17px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p-sub{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:5px;
+  font-size:12.5px;color:var(--ink-faint);font-weight:600}
+.p-sub>*{white-space:nowrap}
+.p-total{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.delta{
+  font-variant-numeric:tabular-nums;font-weight:800;font-size:12.5px;
+  padding:2px 7px;border-radius:7px;
+}
+.delta.plus{background:rgba(34,214,127,.16);color:#5cf0a8}
+.delta.zero{background:rgba(255,61,94,.16);color:#ff8199}
+.bar{position:absolute;left:0;bottom:0;height:3px;background:var(--pc);opacity:.75;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+
+.badge{
+  font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
+  padding:3px 7px;border-radius:6px;background:rgba(255,255,255,.10);color:var(--ink-dim);
+}
+.badge.f7{background:linear-gradient(135deg,var(--yellow),var(--orange));color:#3a2100}
+
+/* ============================================================
+   Historie
+   ============================================================ */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px}
+table.hist{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums}
+table.hist th,table.hist td{padding:9px 10px;text-align:center;white-space:nowrap;font-size:14px}
+table.hist thead th{
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);
+  font-weight:800;border-bottom:1px solid var(--line);
+}
+table.hist thead th:first-child,table.hist tbody td:first-child{
+  text-align:left;position:sticky;left:0;background:var(--bg-2);z-index:1;
+}
+table.hist tbody td{border-bottom:1px solid rgba(255,255,255,.06)}
+table.hist tbody tr:last-child td{border-bottom:0}
+.cell-btn{
+  min-width:44px;padding:6px 9px;border-radius:9px;font-weight:800;font-variant-numeric:tabular-nums;
+  background:rgba(255,255,255,.05);border:1px solid transparent;
+}
+.cell-btn:hover{border-color:var(--line-strong)}
+.cell-btn.bust{color:#ff8199}
+.cell-btn.f7{background:linear-gradient(135deg,rgba(255,212,38,.22),rgba(255,138,43,.22));color:var(--yellow)}
+.row-head{font-weight:800;color:var(--ink-dim)}
+.tot-row td{border-top:1px solid var(--line) !important;font-weight:900;font-size:15px}
+
+/* ============================================================
+   Bottom Sheet (Editor / Regeln / Statistik)
+   ============================================================ */
+.scrim{
+  position:fixed;inset:0;background:rgba(8,4,20,.72);backdrop-filter:blur(6px);
+  z-index:60;opacity:0;pointer-events:none;transition:opacity .22s ease;
+}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:61;
+  max-height:92vh;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,var(--surface-2),var(--bg-2) 40%);
+  border-top:1px solid var(--line-strong);
+  border-radius:28px 28px 0 0;
+  box-shadow:0 -20px 60px rgba(0,0,0,.6);
+  transform:translateY(101%);
+  transition:transform .28s cubic-bezier(.2,.9,.25,1);
+  padding-bottom:var(--safe-b);
+}
+.sheet.open{transform:translateY(0)}
+@media(min-width:700px){
+  .sheet{left:50%;right:auto;transform:translate(-50%,101%);width:660px;border-radius:28px;bottom:14px;max-height:88vh}
+  .sheet.open{transform:translate(-50%,0)}
+}
+.grabber{width:44px;height:5px;border-radius:99px;background:rgba(255,255,255,.24);margin:10px auto 2px;flex:0 0 auto}
+.sheet-head{display:flex;align-items:center;gap:12px;padding:10px 18px 12px;flex:0 0 auto}
+.sheet-body{overflow-y:auto;padding:0 18px 8px;flex:1 1 auto;-webkit-overflow-scrolling:touch}
+.sheet-foot{
+  flex:0 0 auto;display:flex;gap:10px;padding:12px 18px 16px;
+  border-top:1px solid var(--line);background:rgba(0,0,0,.22);
+}
+.sheet-foot .btn{flex:1}
+.sheet h2{font-size:20px;font-weight:900}
+.sheet .sub{font-size:12.5px;color:var(--ink-faint);font-weight:700;margin-top:3px}
+
+/* Editor: Live-Punktzahl */
+.live{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:rgba(0,0,0,.30);border:1px solid var(--line);
+  border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;
+}
+.live .formula{font-size:13px;color:var(--ink-dim);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.5}
+.live .value{font-size:38px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1}
+.live.is-bust .value{color:var(--red)}
+.live.is-f7 .value{color:var(--yellow)}
+
+.group-label{
+  font-size:11.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-faint);margin:16px 0 9px;
+}
+
+/* Zahlenkarten */
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(min-width:520px){.cards{grid-template-columns:repeat(7,1fr)}}
+.card{
+  position:relative;aspect-ratio:5/7;border-radius:12px;
+  display:grid;place-items:center;
+  font-size:clamp(18px,5.2vw,26px);font-weight:900;
+  background:rgba(255,255,255,.06);
+  border:2px solid rgba(255,255,255,.10);
+  color:var(--ink-dim);
+  transition:transform .14s cubic-bezier(.2,.9,.25,1), background .14s, color .14s, border-color .14s;
+}
+.card:active{transform:scale(.92)}
+.card.on{
+  background:var(--cc);color:#1a0f2e;border-color:rgba(255,255,255,.6);
+  transform:translateY(-3px);
+  box-shadow:0 8px 18px rgba(0,0,0,.4), inset 0 -4px 0 rgba(0,0,0,.14);
+}
+.card .count{
+  position:absolute;top:3px;right:5px;font-size:9px;font-weight:800;opacity:.5;
+}
+.cards.disabled{opacity:.32;pointer-events:none;filter:grayscale(.6)}
+
+/* Modifikatoren */
+.mods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:520px){.mods{grid-template-columns:repeat(6,1fr)}}
+.mod{
+  min-height:52px;border-radius:13px;font-size:18px;font-weight:900;
+  background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.10);color:var(--ink-dim);
+  transition:transform .14s, background .14s, color .14s, border-color .14s;
+}
+.mod:active{transform:scale(.94)}
+.mod.on{background:linear-gradient(135deg,var(--violet),var(--pink));color:#fff;border-color:rgba(255,255,255,.5)}
+.mod.x2.on{background:linear-gradient(135deg,var(--yellow),var(--orange));color:#3a2100}
+.mods.disabled{opacity:.32;pointer-events:none;filter:grayscale(.6)}
+
+/* Bust */
+.bust-btn{
+  width:100%;min-height:58px;border-radius:16px;margin-top:6px;
+  font-size:17px;font-weight:900;letter-spacing:.02em;
+  background:rgba(255,61,94,.12);border:2px solid rgba(255,61,94,.45);color:#ff8199;
+  transition:transform .14s, background .14s, color .14s;
+}
+.bust-btn:active{transform:scale(.98)}
+.bust-btn.on{background:linear-gradient(135deg,var(--red),#c2185b);color:#fff;border-color:transparent;
+  box-shadow:0 10px 26px rgba(255,61,94,.4)}
+
+.f7-banner{
+  display:flex;align-items:center;gap:10px;margin-top:12px;padding:11px 14px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(255,212,38,.20),rgba(255,138,43,.14));
+  border:1px solid rgba(255,212,38,.42);color:var(--yellow);font-weight:800;font-size:14px;
+}
+
+.pill-nav{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch}
+.pill{
+  flex:0 0 auto;padding:7px 12px;border-radius:99px;font-size:13px;font-weight:800;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--ink-faint);
+}
+.pill.done{color:var(--ink);border-color:var(--line-strong)}
+.pill.active{background:var(--pc,var(--cyan));color:#12142b;border-color:transparent}
+
+/* Regeln / Statistik */
+.rule{padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.rule:last-child{border-bottom:0}
+.rule h3{font-size:15px;font-weight:900;margin-bottom:5px}
+.rule p{font-size:14px;line-height:1.6;color:var(--ink-dim)}
+.rule code{
+  background:rgba(255,255,255,.09);padding:1px 6px;border-radius:5px;
+  font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.stat{background:rgba(0,0,0,.24);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px}
+.stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);font-weight:800}
+.stat .v{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;margin-top:4px}
+.stat .n{font-size:12px;color:var(--ink-dim);font-weight:700;margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ============================================================
+   Sieger-Overlay
+   ============================================================ */
+.win{
+  position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:22px;
+  background:radial-gradient(circle at 50% 30%, rgba(161,99,255,.35), rgba(10,5,24,.94) 65%);
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+.win.open{opacity:1;pointer-events:auto}
+.win-card{
+  width:100%;max-width:420px;text-align:center;position:relative;z-index:2;
+  background:linear-gradient(180deg,var(--surface-2),var(--bg-2));
+  border:1px solid var(--line-strong);border-radius:28px;padding:28px 22px;box-shadow:var(--shadow);
+}
+.trophy{font-size:60px;line-height:1;margin-bottom:6px}
+.win-name{font-size:32px;font-weight:900;letter-spacing:-.02em;margin:4px 0 2px}
+.win-score{font-size:15px;color:var(--ink-dim);font-weight:700}
+.final{margin:20px 0 22px;text-align:left}
+.final-row{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;
+  background:rgba(0,0,0,.24);margin-bottom:7px;font-weight:800;
+}
+.final-row .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.final-row .s{font-variant-numeric:tabular-nums;font-size:18px}
+#confetti{position:fixed;inset:0;z-index:1;pointer-events:none}
+
+.empty{text-align:center;color:var(--ink-faint);font-size:14px;font-weight:600;padding:18px 0}
+.toast{
+  position:fixed;left:50%;bottom:calc(24px + var(--safe-b));transform:translate(-50%,20px);
+  background:var(--surface-2);border:1px solid var(--line-strong);color:var(--ink);
+  padding:12px 18px;border-radius:14px;font-weight:800;font-size:14px;z-index:90;
+  box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all .25s ease;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="brand" aria-label="Flip 7">
+    <div class="tile">F</div><div class="tile">L</div><div class="tile">I</div><div class="tile">P</div><div class="tile">7</div>
+  </div>
+
+  <!-- ══════════════ SETUP ══════════════ -->
+  <section id="screen-setup">
+    <p class="tagline">Punktezähler für dein Kartenspiel</p>
+
+    <div class="panel">
+      <div class="panel-title">
+        <span>Spieler</span>
+        <span id="pcount">0</span>
+      </div>
+      <div id="player-list"></div>
+      <button class="btn btn-ghost btn-block btn-sm" id="add-player">+ Spieler hinzufügen</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span>Einstellungen</span></div>
+      <div class="field">
+        <label for="target-input">Zielpunktzahl
+          <span class="hint">Original-Regel: 200 Punkte</span>
+        </label>
+        <div class="stepper">
+          <button type="button" id="target-minus" aria-label="Zielpunktzahl verringern">−</button>
+          <input type="number" id="target-input" value="200" min="20" max="2000" step="10" inputmode="numeric" aria-label="Zielpunktzahl">
+          <button type="button" id="target-plus" aria-label="Zielpunktzahl erhöhen">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn btn-primary btn-block" id="start-game">Spiel starten</button>
+    </div>
+    <div class="btn-row" style="margin-top:10px">
+      <button class="btn btn-ghost btn-sm" id="resume-game" style="flex:1" hidden>Letztes Spiel fortsetzen</button>
+      <button class="btn btn-ghost btn-sm" id="rules-setup" style="flex:1">Spielregeln</button>
+    </div>
+  </section>
+
+  <!-- ══════════════ SPIEL ══════════════ -->
+  <section id="screen-game" class="hidden">
+    <div class="topbar">
+      <div class="round-chip"><span>Runde</span><b id="round-num">1</b></div>
+      <div class="round-chip"><span>Ziel</span><b id="target-show">200</b></div>
+      <div class="spacer"></div>
+      <button class="btn-icon" id="btn-stats" title="Statistik" aria-label="Statistik">📊</button>
+      <button class="btn-icon" id="btn-rules" title="Regeln" aria-label="Spielregeln">?</button>
+      <button class="btn-icon" id="btn-menu" title="Menü" aria-label="Menü">⋯</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span>Punktestand</span><span id="leader-note"></span></div>
+      <div id="scoreboard"></div>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn btn-go btn-block" id="btn-round">Runde 1 eintragen</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <span>Rundenverlauf</span>
+        <span id="hist-hint" style="text-transform:none;letter-spacing:0;font-weight:600">Zum Korrigieren antippen</span>
+      </div>
+      <div class="table-wrap"><div id="history"></div></div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════ EDITOR-SHEET ══════════════ -->
+<div class="scrim" id="scrim"></div>
+
+<div class="sheet" id="sheet-editor" role="dialog" aria-modal="true" aria-labelledby="ed-name">
+  <div class="grabber"></div>
+  <div class="sheet-head">
+    <span class="dot" id="ed-dot" style="width:22px;height:22px"></span>
+    <div style="flex:1;min-width:0">
+      <h2 id="ed-name">Spieler</h2>
+      <div class="sub" id="ed-sub">Runde 1</div>
+    </div>
+    <button class="btn-icon" id="ed-close" aria-label="Schließen">✕</button>
+  </div>
+
+  <div class="sheet-body">
+    <div class="pill-nav" id="ed-pills"></div>
+
+    <div class="live" id="ed-live">
+      <div class="formula" id="ed-formula">Noch keine Karten</div>
+      <div class="value" id="ed-value">0</div>
+    </div>
+
+    <div class="group-label">Zahlenkarten – jede Zahl nur einmal</div>
+    <div class="cards" id="ed-cards"></div>
+
+    <div class="group-label">Modifikatoren</div>
+    <div class="mods" id="ed-mods"></div>
+
+    <div class="group-label">Ausgeschieden</div>
+    <button class="bust-btn" id="ed-bust">💥 Bust – 0 Punkte diese Runde</button>
+
+    <div class="f7-banner hidden" id="ed-f7">🎉 Flip 7! Sieben verschiedene Zahlen → +15 Bonus</div>
+    <div style="height:10px"></div>
+  </div>
+
+  <div class="sheet-foot">
+    <button class="btn btn-ghost" id="ed-prev">Zurück</button>
+    <button class="btn btn-go" id="ed-next">Weiter</button>
+  </div>
+</div>
+
+<!-- ══════════════ REGELN ══════════════ -->
+<div class="sheet" id="sheet-rules" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+  <div class="grabber"></div>
+  <div class="sheet-head">
+    <div style="flex:1"><h2 id="rules-title">Spielregeln &amp; Wertung</h2><div class="sub">Kurzreferenz</div></div>
+    <button class="btn-icon" data-close-sheet aria-label="Schließen">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="rule">
+      <h3>🎯 Ziel</h3>
+      <p>Wer zuerst <b id="rule-target">200</b> Punkte erreicht, gewinnt. Die laufende Runde wird immer noch zu Ende gespielt – am Ende gewinnt die höchste Gesamtpunktzahl.</p>
+    </div>
+    <div class="rule">
+      <h3>🃏 Zahlenkarten 0–12</h3>
+      <p>Jede Zahl zählt ihren eigenen Wert. Die Anzahl der Karten im Deck entspricht ihrem Wert – es gibt zwölf 12er, aber nur eine 1 und eine einzige 0.</p>
+    </div>
+    <div class="rule">
+      <h3>💥 Bust</h3>
+      <p>Ziehst du eine Zahl, die du schon liegen hast, bist du raus: <b>0 Punkte</b> für die Runde – Modifikatoren verfallen mit. Eine <i>Second Chance</i> darf stattdessen abgeworfen werden, dann läuft die Runde weiter.</p>
+    </div>
+    <div class="rule">
+      <h3>🎉 Flip 7</h3>
+      <p>Sieben verschiedene Zahlenkarten = <b>+15 Bonus</b>, und die Runde endet sofort für alle. Der Bonus wird hier automatisch berechnet.</p>
+    </div>
+    <div class="rule">
+      <h3>✨ Modifikatoren</h3>
+      <p><code>+2 +4 +6 +8 +10</code> werden auf deine Rundenpunkte addiert. <code>×2</code> verdoppelt <b>nur die Summe der Zahlenkarten</b> – die Plus-Karten und der Flip-7-Bonus kommen danach obendrauf.</p>
+    </div>
+    <div class="rule">
+      <h3>🧊 Freeze &amp; Flip Three</h3>
+      <p>Beeinflussen nur den Spielablauf, nicht die Wertung: <i>Freeze</i> beendet den Zug sofort mit gesicherten Punkten, <i>Flip Three</i> erzwingt drei weitere Karten.</p>
+    </div>
+    <div class="rule">
+      <h3>🧮 Rechenformel</h3>
+      <p><code>(Zahlenkarten × 2, falls ×2) + Plus-Karten + 15 bei Flip 7</code> – bei Bust immer 0.</p>
+    </div>
+  </div>
+  <div class="sheet-foot"><button class="btn btn-go" data-close-sheet>Verstanden</button></div>
+</div>
+
+<!-- ══════════════ STATISTIK ══════════════ -->
+<div class="sheet" id="sheet-stats" role="dialog" aria-modal="true" aria-labelledby="stats-title">
+  <div class="grabber"></div>
+  <div class="sheet-head">
+    <div style="flex:1"><h2 id="stats-title">Statistik</h2><div class="sub" id="stats-sub"></div></div>
+    <button class="btn-icon" data-close-sheet aria-label="Schließen">✕</button>
+  </div>
+  <div class="sheet-body"><div id="stats-body"></div><div style="height:10px"></div></div>
+  <div class="sheet-foot"><button class="btn btn-go" data-close-sheet>Schließen</button></div>
+</div>
+
+<!-- ══════════════ MENÜ ══════════════ -->
+<div class="sheet" id="sheet-menu" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+  <div class="grabber"></div>
+  <div class="sheet-head">
+    <div style="flex:1"><h2 id="menu-title">Menü</h2><div class="sub">Spiel verwalten</div></div>
+    <button class="btn-icon" data-close-sheet aria-label="Schließen">✕</button>
+  </div>
+  <div class="sheet-body" style="padding-bottom:16px">
+    <button class="btn btn-ghost btn-block" id="menu-undo" style="margin-bottom:10px">↩︎ Letzte Runde rückgängig</button>
+    <button class="btn btn-ghost btn-block" id="menu-edit-players" style="margin-bottom:10px">✎ Spieler umbenennen</button>
+    <button class="btn btn-ghost btn-block" id="menu-rematch" style="margin-bottom:10px">🔁 Revanche – gleiche Spieler, 0 Punkte</button>
+    <button class="btn btn-ghost btn-block" id="menu-new">🗑 Neues Spiel</button>
+  </div>
+</div>
+
+<!-- ══════════════ SIEGER ══════════════ -->
+<div class="win" id="win">
+  <canvas id="confetti"></canvas>
+  <div class="win-card">
+    <div class="trophy">🏆</div>
+    <div class="sub" style="color:var(--ink-faint);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:11px">Sieger</div>
+    <div class="win-name" id="win-name">—</div>
+    <div class="win-score" id="win-score"></div>
+    <div class="final" id="win-final"></div>
+    <button class="btn btn-go btn-block" id="win-rematch" style="margin-bottom:10px">Revanche</button>
+    <button class="btn btn-ghost btn-block" id="win-new">Neues Spiel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ============================================================
+   Konstanten
+   ============================================================ */
+const NUMBERS   = [0,1,2,3,4,5,6,7,8,9,10,11,12];
+const PLUS_MODS = [2,4,6,8,10];
+const FLIP7_BONUS = 15;
+const FLIP7_COUNT = 7;
+const STORE_KEY = 'flip7-counter-v1';
+
+const COLORS = [
+  '#ff3d5e','#2bc3ff','#ffd426','#22d67f','#a163ff',
+  '#ff8a2b','#12d6c0','#ff5ec4','#9ae630','#5b7cff',
+  '#ff6f61','#00bcd4','#c0ca33','#e040fb','#ffab00','#4dd0e1','#f06292','#7cb342'
+];
+// Farbe je Zahlenkarte (0 → grau, danach Regenbogen)
+const CARD_COLORS = ['#9aa0c9','#ff3d5e','#ff5f3d','#ff8a2b','#ffb020','#ffd426','#d9e02a',
+                     '#9ae630','#3fdd7a','#12d6c0','#2bc3ff','#5b7cff','#a163ff'];
+
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const clamp = (n,a,b) => Math.min(b, Math.max(a, n));
+const esc = s => String(s).replace(/[&<>"']/g, c => (
+  {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch(_){} };
+
+/* ============================================================
+   Zustand
+   ============================================================ */
+let game = null;   // laufendes Spiel
+let setupPlayers = [];  // {name} während des Setups
+let editor = null; // {mode:'round'|'single', order:[], idx, draft:{pid:entry}, round}
+let shownIdx = -1; // zuletzt gerenderter Spieler im Editor
+let pendingOne = false; // Tastatur: "1" wartet auf 0/1/2 für 10/11/12
+
+const blankEntry = () => ({ nums: [], plus: [], x2: false, bust: false });
+
+/** Punkte einer Runden-Eingabe nach Original-Regeln. */
+function scoreEntry(e){
+  if (!e || e.bust) return 0;
+  const base = e.nums.reduce((a,b) => a+b, 0);
+  let s = e.x2 ? base * 2 : base;
+  s += e.plus.reduce((a,b) => a+b, 0);
+  if (e.nums.length >= FLIP7_COUNT) s += FLIP7_BONUS;
+  return s;
+}
+const isFlip7 = e => !!e && !e.bust && e.nums.length >= FLIP7_COUNT;
+
+/** Gesamtpunkte eines Spielers über alle bisherigen Runden. */
+function totalOf(pid){
+  return game.rounds.reduce((sum, r) => sum + scoreEntry(r[pid]), 0);
+}
+function standings(){
+  return game.players
+    .map(p => ({ ...p, total: totalOf(p.id) }))
+    .sort((a,b) => b.total - a.total);
+}
+
+/* ============================================================
+   Persistenz
+   ============================================================ */
+function save(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(game)); } catch(_){}
+}
+function load(){
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return null;
+    const g = JSON.parse(raw);
+    if (!g || !Array.isArray(g.players) || !g.players.length) return null;
+    if (!Array.isArray(g.rounds)) g.rounds = [];
+    return g;
+  } catch(_){ return null; }
+}
+const clearSave = () => { try { localStorage.removeItem(STORE_KEY); } catch(_){} };
+
+/* ============================================================
+   Toast
+   ============================================================ */
+let toastTimer;
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ============================================================
+   Sheets
+   ============================================================ */
+let openSheet = null;
+function showSheet(id){
+  closeSheet();
+  openSheet = $(id);
+  openSheet.classList.add('open');
+  $('#scrim').classList.add('open');
+}
+function closeSheet(){
+  if (openSheet){ openSheet.classList.remove('open'); openSheet = null; }
+  $('#scrim').classList.remove('open');
+}
+$('#scrim').addEventListener('click', () => {
+  // Editor nur über die Buttons verlassen – sonst gehen Eingaben verloren
+  if (openSheet && openSheet.id === 'sheet-editor') return;
+  closeSheet();
+});
+$$('[data-close-sheet]').forEach(b => b.addEventListener('click', closeSheet));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && openSheet && openSheet.id !== 'sheet-editor') closeSheet();
+});
+
+/* ============================================================
+   SETUP
+   ============================================================ */
+function renderSetup(){
+  const list = $('#player-list');
+  list.innerHTML = setupPlayers.map((p, i) => `
+    <div class="player-row">
+      <span class="dot" style="background:${COLORS[i % COLORS.length]}"></span>
+      <input type="text" value="${esc(p.name)}" data-i="${i}" maxlength="18"
+             placeholder="Spieler ${i+1}" aria-label="Name Spieler ${i+1}"
+             autocomplete="off" autocapitalize="words" spellcheck="false">
+      <button class="btn-icon" data-del="${i}" aria-label="Spieler ${i+1} entfernen"
+              ${setupPlayers.length <= 2 ? 'disabled style="opacity:.3"' : ''}>✕</button>
+    </div>`).join('');
+
+  $('#pcount').textContent = setupPlayers.length + ' / 18';
+  $('#add-player').disabled = setupPlayers.length >= 18;
+
+  $$('#player-list input', list).forEach(inp => {
+    inp.addEventListener('input', e => { setupPlayers[+e.target.dataset.i].name = e.target.value; });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter'){ e.preventDefault(); addPlayer(); }
+    });
+  });
+  $$('#player-list [data-del]', list).forEach(b => b.addEventListener('click', () => {
+    setupPlayers.splice(+b.dataset.del, 1);
+    renderSetup();
+  }));
+}
+function addPlayer(){
+  if (setupPlayers.length >= 18) return;
+  setupPlayers.push({ name: '' });
+  renderSetup();
+  const inputs = $$('#player-list input');
+  inputs[inputs.length - 1].focus();
+}
+$('#add-player').addEventListener('click', addPlayer);
+
+$('#target-minus').addEventListener('click', () => bumpTarget(-10));
+$('#target-plus').addEventListener('click',  () => bumpTarget(+10));
+function bumpTarget(d){
+  const el = $('#target-input');
+  el.value = clamp((parseInt(el.value, 10) || 200) + d, 20, 2000);
+}
+
+$('#start-game').addEventListener('click', () => {
+  const names = setupPlayers.map((p, i) => (p.name || '').trim() || `Spieler ${i+1}`);
+  if (names.length < 2) return toast('Mindestens 2 Spieler');
+
+  game = {
+    target: clamp(parseInt($('#target-input').value, 10) || 200, 20, 2000),
+    players: names.map((name, i) => ({ id: 'p' + i + '-' + Date.now().toString(36),
+                                       name, color: COLORS[i % COLORS.length] })),
+    rounds: [],
+    finished: false
+  };
+  save();
+  showGame();
+});
+
+$('#resume-game').addEventListener('click', () => {
+  const g = load();
+  if (!g) return toast('Kein gespeichertes Spiel');
+  game = g;
+  showGame();
+  if (game.finished) showWinner();
+});
+$('#rules-setup').addEventListener('click', openRules);
+
+/* ============================================================
+   SPIELANSICHT
+   ============================================================ */
+function showGame(){
+  $('#screen-setup').classList.add('hidden');
+  $('#screen-game').classList.remove('hidden');
+  renderGame();
+}
+function showSetupScreen(){
+  $('#screen-game').classList.add('hidden');
+  $('#screen-setup').classList.remove('hidden');
+  $('#win').classList.remove('open');
+  $('#resume-game').hidden = !load();
+}
+
+function renderGame(){
+  const rows = standings();
+  const max  = Math.max(1, ...rows.map(r => r.total), game.target);
+  const last = game.rounds[game.rounds.length - 1];
+
+  $('#round-num').textContent   = game.finished ? game.rounds.length : game.rounds.length + 1;
+  $('#target-show').textContent = game.target;
+  $('#rule-target').textContent = game.target;
+
+  $('#scoreboard').innerHTML = rows.map((p, i) => {
+    const e   = last && last[p.id];
+    const pts = last ? scoreEntry(e) : null;
+    const f7  = isFlip7(e);
+    const pct = clamp(p.total / game.target * 100, 0, 100);
+    return `
+      <div class="score-item ${i === 0 && p.total > 0 ? 'lead' : ''}" style="--pc:${p.color}">
+        <div class="rank">${i + 1}</div>
+        <div style="min-width:0">
+          <div class="p-name">${esc(p.name)}</div>
+          <div class="p-sub">
+            ${last ? `<span class="delta ${pts > 0 ? 'plus' : 'zero'}">${pts > 0 ? '+' + pts : (e && e.bust ? 'Bust' : '0')}</span>` : ''}
+            ${f7 ? '<span class="badge f7">Flip 7</span>' : ''}
+            <span>${game.target - p.total > 0 ? 'noch ' + (game.target - p.total) : 'Ziel erreicht'}</span>
+          </div>
+        </div>
+        <div class="p-total">${p.total}</div>
+        <div class="bar" style="width:${pct}%"></div>
+      </div>`;
+  }).join('');
+
+  $('#leader-note').textContent = game.finished ? 'Spiel beendet' : '';
+
+  const btn = $('#btn-round');
+  if (game.finished){
+    btn.textContent = 'Endstand ansehen';
+    btn.onclick = showWinner;
+  } else {
+    btn.textContent = `Runde ${game.rounds.length + 1} eintragen`;
+    btn.onclick = () => startRound();
+  }
+
+  renderHistory();
+  save();
+}
+
+function renderHistory(){
+  const box = $('#history');
+  if (!game.rounds.length){
+    box.innerHTML = '<div class="empty">Noch keine Runde gespielt.</div>';
+    $('#hist-hint').textContent = '';
+    return;
+  }
+  $('#hist-hint').textContent = 'Zum Korrigieren antippen';
+
+  const head = game.players.map(p =>
+    `<th style="color:${p.color}">${esc(p.name.slice(0, 8))}</th>`).join('');
+
+  const body = game.rounds.map((r, ri) => `
+    <tr>
+      <td class="row-head">R${ri + 1}</td>
+      ${game.players.map(p => {
+        const e = r[p.id];
+        const s = scoreEntry(e);
+        const cls = e && e.bust ? 'bust' : (isFlip7(e) ? 'f7' : '');
+        return `<td><button class="cell-btn ${cls}" data-r="${ri}" data-p="${p.id}"
+                  aria-label="Runde ${ri+1}, ${esc(p.name)}: ${s} Punkte – bearbeiten"
+                  >${e && e.bust ? '✕' : s}</button></td>`;
+      }).join('')}
+    </tr>`).join('');
+
+  box.innerHTML = `
+    <table class="hist">
+      <thead><tr><th>Runde</th>${head}</tr></thead>
+      <tbody>${body}
+        <tr class="tot-row"><td class="row-head">Σ</td>
+          ${game.players.map(p => `<td>${totalOf(p.id)}</td>`).join('')}
+        </tr>
+      </tbody>
+    </table>`;
+
+  $$('#history .cell-btn').forEach(b => b.addEventListener('click', () => {
+    editSingle(+b.dataset.r, b.dataset.p);
+  }));
+}
+
+/* ============================================================
+   EDITOR
+   ============================================================ */
+function startRound(){
+  editor = {
+    mode: 'round',
+    round: game.rounds.length,
+    order: game.players.map(p => p.id),
+    idx: 0,
+    draft: Object.fromEntries(game.players.map(p => [p.id, blankEntry()]))
+  };
+  openEditor();
+}
+function editSingle(roundIdx, pid){
+  editor = {
+    mode: 'single',
+    round: roundIdx,
+    order: [pid],
+    idx: 0,
+    draft: { [pid]: { ...blankEntry(), ...(game.rounds[roundIdx][pid] || {}) } }
+  };
+  // Arrays entkoppeln, damit Abbrechen nichts verändert
+  editor.draft[pid].nums = [...editor.draft[pid].nums];
+  editor.draft[pid].plus = [...editor.draft[pid].plus];
+  openEditor();
+}
+
+function openEditor(){
+  buildCards();
+  buildMods();
+  shownIdx = -1;
+  renderEditor();
+  showSheet('#sheet-editor');
+}
+function currentPlayer(){
+  const id = editor.order[editor.idx];
+  return game.players.find(p => p.id === id);
+}
+const currentEntry = () => editor.draft[editor.order[editor.idx]];
+
+function buildCards(){
+  $('#ed-cards').innerHTML = NUMBERS.map(n => `
+    <button class="card" data-n="${n}" style="--cc:${CARD_COLORS[n]}" aria-pressed="false"
+            aria-label="Karte ${n}">${n}<span class="count">${n === 0 ? 1 : n}×</span></button>`).join('');
+  $$('#ed-cards .card').forEach(b => b.addEventListener('click', () => toggleNum(+b.dataset.n)));
+}
+function buildMods(){
+  $('#ed-mods').innerHTML =
+    PLUS_MODS.map(m => `<button class="mod" data-m="${m}" aria-pressed="false">+${m}</button>`).join('') +
+    `<button class="mod x2" data-x2="1" aria-pressed="false">×2</button>`;
+  $$('#ed-mods [data-m]').forEach(b => b.addEventListener('click', () => togglePlus(+b.dataset.m)));
+  $('#ed-mods [data-x2]').addEventListener('click', toggleX2);
+}
+
+function toggleNum(n){
+  const e = currentEntry();
+  if (e.bust) return;
+  const i = e.nums.indexOf(n);
+  if (i >= 0) e.nums.splice(i, 1);
+  else {
+    if (e.nums.length >= FLIP7_COUNT){
+      toast('Mehr als 7 verschiedene Zahlen sind nicht möglich');
+      return;
+    }
+    e.nums.push(n);
+    e.nums.sort((a,b) => a-b);
+  }
+  buzz(8);
+  renderEditor();
+}
+function togglePlus(m){
+  const e = currentEntry();
+  if (e.bust) return;
+  const i = e.plus.indexOf(m);
+  if (i >= 0) e.plus.splice(i, 1); else e.plus.push(m);
+  buzz(8);
+  renderEditor();
+}
+function toggleX2(){
+  const e = currentEntry();
+  if (e.bust) return;
+  e.x2 = !e.x2;
+  buzz(8);
+  renderEditor();
+}
+$('#ed-bust').addEventListener('click', () => {
+  const e = currentEntry();
+  e.bust = !e.bust;
+  buzz(e.bust ? [12, 40, 12] : 8);
+  renderEditor();
+});
+
+function renderEditor(){
+  const p = currentPlayer();
+  const e = currentEntry();
+  const s = scoreEntry(e);
+  const f7 = isFlip7(e);
+
+  $('#ed-dot').style.background = p.color;
+  $('#ed-name').textContent = p.name;
+  $('#ed-sub').textContent = editor.mode === 'single'
+    ? `Runde ${editor.round + 1} korrigieren`
+    : `Runde ${editor.round + 1} · Spieler ${editor.idx + 1} von ${editor.order.length}`;
+
+  // Karten
+  $$('#ed-cards .card').forEach(b => {
+    const on = e.nums.includes(+b.dataset.n);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  $('#ed-cards').classList.toggle('disabled', e.bust);
+
+  // Modifikatoren
+  $$('#ed-mods [data-m]').forEach(b => {
+    const on = e.plus.includes(+b.dataset.m);
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+  const x2b = $('#ed-mods [data-x2]');
+  x2b.classList.toggle('on', e.x2);
+  x2b.setAttribute('aria-pressed', String(e.x2));
+  $('#ed-mods').classList.toggle('disabled', e.bust);
+
+  // Bust
+  $('#ed-bust').classList.toggle('on', e.bust);
+  $('#ed-bust').textContent = e.bust ? '💥 Bust aktiv – tippen zum Aufheben' : '💥 Bust – 0 Punkte diese Runde';
+
+  // Live-Wert + Formel
+  const live = $('#ed-live');
+  live.classList.toggle('is-bust', e.bust);
+  live.classList.toggle('is-f7', f7 && !e.bust);
+  $('#ed-value').textContent = s;
+  $('#ed-formula').innerHTML = formulaText(e);
+  $('#ed-f7').classList.toggle('hidden', !f7);
+
+  // Spieler-Navigation
+  $('#ed-pills').innerHTML = editor.mode === 'single' ? '' : editor.order.map((id, i) => {
+    const pl = game.players.find(x => x.id === id);
+    const done = i < editor.idx;
+    return `<button class="pill ${i === editor.idx ? 'active' : ''} ${done ? 'done' : ''}"
+              data-i="${i}" style="--pc:${pl.color}">${esc(pl.name.slice(0, 10))}${
+              done ? ' · ' + scoreEntry(editor.draft[id]) : ''}</button>`;
+  }).join('');
+  $$('#ed-pills .pill').forEach(b => b.addEventListener('click', () => {
+    editor.idx = +b.dataset.i;
+    renderEditor();
+  }));
+
+  // Fußzeile
+  const isLast = editor.idx === editor.order.length - 1;
+  $('#ed-prev').textContent = editor.mode === 'single' ? 'Abbrechen'
+                            : (editor.idx === 0 ? 'Abbrechen' : 'Zurück');
+  $('#ed-next').textContent = editor.mode === 'single' ? 'Speichern'
+                            : (isLast ? 'Runde abschließen' : 'Weiter');
+
+  // Nur beim Spielerwechsel nach oben springen – nicht bei jedem Kartentipp
+  if (shownIdx !== editor.idx){
+    shownIdx = editor.idx;
+    const active = $('#ed-pills .pill.active');
+    if (active) active.scrollIntoView({ inline: 'center', block: 'nearest' });
+    $('.sheet-body', $('#sheet-editor')).scrollTop = 0;
+  }
+}
+
+function formulaText(e){
+  if (e.bust) return 'Bust – alle Karten dieser Runde verfallen';
+  if (!e.nums.length && !e.plus.length && !e.x2) return 'Noch keine Karten';
+  const base  = e.nums.reduce((a,b) => a+b, 0);
+  const sumTxt = e.nums.length ? e.nums.join(' + ') : '0';
+  const extras = e.plus.slice().sort((a,b) => a-b).map(m => '+ ' + m);
+  if (isFlip7(e)) extras.push('+ 15 Flip 7');
+
+  let txt;
+  if (e.x2) txt = `${e.nums.length > 1 ? `(${sumTxt})` : sumTxt} × 2 = ${base * 2}`;
+  else if (extras.length && e.nums.length > 1) txt = `${sumTxt} = ${base}`;
+  else txt = sumTxt;
+
+  return esc([txt, ...extras].join(' '));
+}
+
+$('#ed-prev').addEventListener('click', () => {
+  if (editor.mode === 'single' || editor.idx === 0){ closeSheet(); editor = null; return; }
+  editor.idx--;
+  renderEditor();
+});
+$('#ed-next').addEventListener('click', () => {
+  if (editor.mode === 'single'){
+    game.rounds[editor.round][editor.order[0]] = currentEntry();
+    editor = null;
+    closeSheet();
+    renderGame();
+    checkFinish();
+    toast('Runde korrigiert');
+    return;
+  }
+  if (editor.idx < editor.order.length - 1){
+    editor.idx++;
+    renderEditor();
+    return;
+  }
+  // Runde abschließen
+  game.rounds[editor.round] = editor.draft;
+  editor = null;
+  closeSheet();
+  renderGame();
+  checkFinish();
+});
+$('#ed-close').addEventListener('click', () => { closeSheet(); editor = null; });
+
+// Tastatur: Zahlen direkt eintippen
+document.addEventListener('keydown', e => {
+  if (!editor || !openSheet || openSheet.id !== 'sheet-editor') return;
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'Escape'){ closeSheet(); editor = null; return; }
+  if (e.key === 'Enter'){ e.preventDefault(); $('#ed-next').click(); return; }
+  if (e.key === 'b' || e.key === 'B'){ $('#ed-bust').click(); return; }
+  const m = e.key.match(/^([0-9])$/);
+  if (m){
+    // 1 gefolgt von 0/1/2 → 10/11/12
+    const n = +m[1];
+    if (pendingOne && n <= 2){ toggleNum(10 + n); pendingOne = false; return; }
+    pendingOne = (n === 1);
+    if (n === 1) setTimeout(() => { if (pendingOne){ toggleNum(1); pendingOne = false; } }, 420);
+    else toggleNum(n);
+  }
+});
+
+/* ============================================================
+   Spielende
+   ============================================================ */
+function checkFinish(){
+  const rows = standings();
+  const reached = !!rows[0] && rows[0].total >= game.target && game.rounds.length > 0;
+  if (reached && !game.finished){
+    game.finished = true;
+    renderGame();
+    showWinner();
+  } else if (!reached && game.finished){
+    // Eine Korrektur hat den Sieger wieder unter die Zielmarke gedrückt
+    game.finished = false;
+    $('#win').classList.remove('open');
+    renderGame();
+  }
+}
+
+function showWinner(){
+  const rows = standings();
+  const top  = rows[0].total;
+  const winners = rows.filter(r => r.total === top);
+
+  $('#win-name').textContent  = winners.map(w => w.name).join(' & ');
+  $('#win-score').textContent = winners.length > 1
+    ? `Gleichstand bei ${top} Punkten nach ${game.rounds.length} Runden`
+    : `${top} Punkte in ${game.rounds.length} Runden`;
+
+  $('#win-final').innerHTML = rows.map((p, i) => `
+    <div class="final-row" style="border-left:4px solid ${p.color}">
+      <span style="color:var(--ink-faint);width:18px">${i + 1}</span>
+      <span class="n">${esc(p.name)}</span>
+      <span class="s">${p.total}</span>
+    </div>`).join('');
+
+  $('#win').classList.add('open');
+  confetti();
+}
+$('#win-rematch').addEventListener('click', () => { rematch(); $('#win').classList.remove('open'); });
+$('#win-new').addEventListener('click', newGame);
+
+function rematch(){
+  game.rounds = [];
+  game.finished = false;
+  save();
+  renderGame();
+  toast('Revanche – alle bei 0');
+}
+function newGame(){
+  clearSave();
+  game = null;
+  setupPlayers = [{name:''},{name:''}];
+  renderSetup();
+  showSetupScreen();
+}
+
+/* ============================================================
+   Menü
+   ============================================================ */
+$('#btn-menu').addEventListener('click', () => showSheet('#sheet-menu'));
+$('#btn-rules').addEventListener('click', openRules);
+function openRules(){
+  $('#rule-target').textContent = game ? game.target : ($('#target-input').value || 200);
+  showSheet('#sheet-rules');
+}
+
+$('#menu-undo').addEventListener('click', () => {
+  if (!game.rounds.length) return toast('Keine Runde zum Rückgängigmachen');
+  game.rounds.pop();
+  game.finished = false;
+  closeSheet();
+  renderGame();
+  toast('Letzte Runde entfernt');
+});
+$('#menu-rematch').addEventListener('click', () => { closeSheet(); rematch(); });
+$('#menu-new').addEventListener('click', () => {
+  if (confirm('Aktuelles Spiel verwerfen und neu starten?')){ closeSheet(); newGame(); }
+});
+$('#menu-edit-players').addEventListener('click', () => {
+  closeSheet();
+  game.players.forEach(p => {
+    const n = prompt(`Name für „${p.name}“:`, p.name);
+    if (n !== null && n.trim()) p.name = n.trim().slice(0, 18);
+  });
+  renderGame();
+});
+
+/* ============================================================
+   Statistik
+   ============================================================ */
+$('#btn-stats').addEventListener('click', () => {
+  const R = game.rounds.length;
+  $('#stats-sub').textContent = R ? `${R} Runde${R === 1 ? '' : 'n'} gespielt` : 'Noch keine Daten';
+
+  if (!R){
+    $('#stats-body').innerHTML = '<div class="empty">Spiel mindestens eine Runde, dann gibt es hier Zahlen.</div>';
+    return showSheet('#sheet-stats');
+  }
+
+  const per = game.players.map(p => {
+    const scores = game.rounds.map(r => scoreEntry(r[p.id]));
+    const busts  = game.rounds.filter(r => r[p.id] && r[p.id].bust).length;
+    const f7s    = game.rounds.filter(r => isFlip7(r[p.id])).length;
+    const total  = scores.reduce((a,b) => a+b, 0);
+    return { p, best: Math.max(...scores), avg: Math.round(total / R), busts, f7s, total };
+  });
+
+  const bestRound = per.reduce((a,b) => b.best > a.best ? b : a);
+  const mostBusts = per.reduce((a,b) => b.busts > a.busts ? b : a);
+  const mostF7    = per.reduce((a,b) => b.f7s > a.f7s ? b : a);
+  const bestAvg   = per.reduce((a,b) => b.avg > a.avg ? b : a);
+
+  $('#stats-body').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat"><div class="k">Beste Runde</div><div class="v">${bestRound.best}</div>
+        <div class="n">${esc(bestRound.p.name)}</div></div>
+      <div class="stat"><div class="k">Bester Schnitt</div><div class="v">${bestAvg.avg}</div>
+        <div class="n">${esc(bestAvg.p.name)}</div></div>
+      <div class="stat"><div class="k">Meiste Busts</div><div class="v">${mostBusts.busts}</div>
+        <div class="n">${mostBusts.busts ? esc(mostBusts.p.name) : 'niemand'}</div></div>
+      <div class="stat"><div class="k">Flip 7s</div><div class="v">${mostF7.f7s}</div>
+        <div class="n">${mostF7.f7s ? esc(mostF7.p.name) : 'noch keiner'}</div></div>
+    </div>
+    <div class="group-label">Pro Spieler</div>
+    <div class="table-wrap">
+      <table class="hist">
+        <thead><tr><th>Spieler</th><th>Ø</th><th>Beste</th><th>Bust</th><th>Flip 7</th><th>Σ</th></tr></thead>
+        <tbody>${per.map(s => `
+          <tr>
+            <td class="row-head" style="color:${s.p.color}">${esc(s.p.name)}</td>
+            <td>${s.avg}</td><td>${s.best}</td><td>${s.busts}</td><td>${s.f7s}</td>
+            <td style="font-weight:900">${s.total}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  showSheet('#sheet-stats');
+});
+
+/* ============================================================
+   Konfetti
+   ============================================================ */
+function confetti(){
+  const cv = $('#confetti');
+  const ctx = cv.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = cv.width  = innerWidth  * dpr;
+  const H = cv.height = innerHeight * dpr;
+  cv.style.width = innerWidth + 'px';
+  cv.style.height = innerHeight + 'px';
+
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const parts = Array.from({ length: 140 }, () => ({
+    x: Math.random() * W,
+    y: -Math.random() * H * 0.5,
+    w: (6 + Math.random() * 8) * dpr,
+    h: (9 + Math.random() * 12) * dpr,
+    vy: (2 + Math.random() * 4) * dpr,
+    vx: (Math.random() - 0.5) * 2.4 * dpr,
+    rot: Math.random() * Math.PI,
+    vr: (Math.random() - 0.5) * 0.22,
+    c: COLORS[Math.floor(Math.random() * 10)]
+  }));
+
+  const t0 = performance.now();
+  (function frame(t){
+    ctx.clearRect(0, 0, W, H);
+    parts.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      if (p.y > H + 40) { p.y = -30; p.x = Math.random() * W; }
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (t - t0 < 6500 && $('#win').classList.contains('open')) requestAnimationFrame(frame);
+    else ctx.clearRect(0, 0, W, H);
+  })(t0);
+}
+
+/* ============================================================
+   Start
+   ============================================================ */
+(function init(){
+  const saved = load();
+  $('#resume-game').hidden = !saved;
+  setupPlayers = [{ name: '' }, { name: '' }];
+  renderSetup();
+  if (saved){
+    game = saved;
+    showGame();
+    if (game.finished) showWinner();
+  }
+})();
+
+})();
+</script>
+</body>
+</html>
